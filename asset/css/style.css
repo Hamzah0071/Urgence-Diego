@@ -1,0 +1,436 @@
+
+        :root {
+            --bg-light: #f8fafc;
+            --bg-white: #ffffff;
+            --blue-deep: #1e40af;
+            --red-emergency: #dc2626;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --transition: all 0.3s ease;
+            --safe-area-inset-bottom: env(safe-area-inset-bottom, 0);
+            --max-width: 1200px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html {
+            /* Empêche le texte de devenir minuscule sur tablette/PC */
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+        }
+
+        a { color: inherit; }
+
+        .phone-number {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+        }
+
+        /* ============ Conteneurs génériques ============ */
+        /* .container = boîte centrée, largeur max, PAS de flex (utilisée par header ET main) */
+        .container {
+            width: 100%;
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* .header-inner = uniquement pour la barre du haut (logo + user) */
+        .header-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        /* Header */
+        header {
+            background: var(--bg-white);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-placeholder {
+            width: 120px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--blue-deep) 0%, #3b82f6 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.7rem;
+            border-radius: 8px;
+            font-weight: 700;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--blue-deep);
+        }
+
+        .btn-logout {
+            background: var(--red-emergency);
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+
+        .btn-logout:hover {
+            background: #b91c1c;
+        }
+
+        .btn-logout:active {
+            transform: scale(0.98);
+        }
+
+        /* Main Content */
+        main {
+            padding: 1.5rem 0;
+            padding-bottom: calc(100px + var(--safe-area-inset-bottom));
+        }
+
+        .dashboard-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .dashboard-header h1 {
+            font-size: 1.6rem;
+            color: var(--blue-deep);
+            margin-bottom: 0.5rem;
+        }
+
+        .dashboard-header p {
+            color: var(--text-muted);
+        }
+
+        /* Grille principale du contenu : empilée en mobile, 2 colonnes en desktop */
+        .content-layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        .content-main {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .content-side {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-white);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .card h2 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: var(--text-dark);
+        }
+
+        .card-content {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.25rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .info-value {
+            color: var(--text-dark);
+            font-weight: 500;
+            word-break: break-word;
+        }
+
+        /* Services Grid */
+        .services-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .service-item {
+            background: var(--bg-light);
+            padding: 1.25rem;
+            border-radius: 12px;
+            border-left: 4px solid var(--blue-deep);
+            cursor: pointer;
+            transition: var(--transition);
+            height: 100%;
+        }
+
+        .service-item:hover {
+            background: #e0f2fe;
+        }
+
+        .service-item:active {
+            transform: scale(0.98);
+            background: #e0f2fe;
+        }
+
+        .service-item h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .service-item p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .service-phone {
+            font-size: 1.2rem;
+            color: var(--blue-deep);
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+        }
+
+        .service-phone a {
+            color: var(--blue-deep);
+            text-decoration: none;
+        }
+
+        .service-phone a:active {
+            color: var(--red-emergency);
+        }
+
+        /* Pharmacy Card */
+        .pharmacy-card {
+            background: linear-gradient(135deg, var(--blue-deep) 0%, #3b82f6 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 16px;
+        }
+
+        .pharmacy-card h2 {
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .pharmacy-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .pharmacy-location {
+            opacity: 0.9;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+
+        .pharmacy-phone {
+            font-size: 1.3rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            word-break: break-word;
+        }
+
+        .pharmacy-phone a {
+            color: white;
+            text-decoration: none;
+        }
+
+        .btn-call {
+            display: inline-block;
+            background: white;
+            color: var(--blue-deep);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--bg-white);
+            border-top: 1px solid #e2e8f0;
+            padding: 2rem 1rem;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 2rem;
+        }
+
+        /* Bottom Navigation (mobile uniquement) */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-white);
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-around;
+            padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+            z-index: 99;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.08);
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 0;
+            text-decoration: none;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            transition: var(--transition);
+        }
+
+        .nav-item.active {
+            color: var(--blue-deep);
+        }
+
+        .nav-item-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        /* Navigation horizontale (tablette / PC uniquement) */
+        .top-nav {
+            display: none;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+        }
+
+        .empty-state p {
+            margin-bottom: 1rem;
+        }
+
+        /* ============ TABLETTE (>= 640px) ============ */
+        @media (min-width: 640px) {
+            .services-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* ============ TABLETTE LARGE / PETIT PC (>= 768px) ============ */
+        @media (min-width: 768px) {
+            .container {
+                padding: 0 2rem;
+            }
+
+            main {
+                padding: 2rem 0;
+                padding-bottom: 2rem; /* plus de barre fixe en bas */
+            }
+
+            .dashboard-header h1 {
+                font-size: 2.2rem;
+            }
+
+            /* La nav du bas disparaît, remplacée par la nav horizontale du header */
+            .bottom-nav {
+                display: none;
+            }
+
+            .top-nav {
+                display: flex;
+                gap: 1.5rem;
+            }
+
+            .top-nav a {
+                text-decoration: none;
+                color: var(--text-muted);
+                font-weight: 600;
+                font-size: 0.95rem;
+                transition: var(--transition);
+            }
+
+            .top-nav a.active,
+            .top-nav a:hover {
+                color: var(--blue-deep);
+            }
+        }
+
+        /* ============ PC / GRAND ÉCRAN (>= 1024px) ============ */
+        @media (min-width: 1024px) {
+            .dashboard-header h1 {
+                font-size: 2.5rem;
+            }
+
+            /* Colonne principale (services) + colonne latérale (profil, pharmacie) */
+            .content-layout {
+                grid-template-columns: 2fr 1fr;
+            }
+
+            .services-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 1280px) {
+            .services-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }

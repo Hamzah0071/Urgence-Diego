@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Urgence Antsiranana - Services d'Information</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=JetBrains+Mono:wght@700&family=Poppins:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-light: #f8fafc;
+            --bg-white: #ffffff;
+            --blue-deep: #1e40af;
+            --red-emergency: #dc2626;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+        }
+
+        .phone-number {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease forwards;
+        }
+
+        /* Layout */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        header {
+            padding: 2rem 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-white);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-placeholder {
+            width: 180px;
+            height: 60px;
+            background: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed #cbd5e1;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            border-radius: 8px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-dark);
+            margin-left: 2rem;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover {
+            color: var(--blue-deep);
+        }
+
+        /* Hero Section - Asymmetric */
+        .hero {
+            padding: 4rem 0;
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .hero-content h1 {
+            font-size: 3.5rem;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            color: var(--blue-deep);
+        }
+
+        .hero-content p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            max-width: 600px;
+        }
+
+        .emergency-banner {
+            background: var(--red-emergency);
+            color: white;
+            padding: 2.5rem;
+            border-radius: 24px;
+            box-shadow: 0 20px 25px -5px rgba(220, 38, 38, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .emergency-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200px;
+            height: 200px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+        }
+
+        .emergency-banner h2 {
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+            opacity: 0.9;
+        }
+
+        .emergency-banner .phone-number {
+            font-size: 3.5rem;
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        .btn-call {
+            display: inline-block;
+            background: white;
+            color: var(--red-emergency);
+            padding: 0.8rem 1.5rem;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: var(--transition);
+        }
+
+        .btn-call:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+        }
+
+        /* Services Grid */
+        .services-section {
+            padding: 4rem 0;
+        }
+
+        .section-title {
+            margin-bottom: 3rem;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            color: var(--text-dark);
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .service-card {
+            background: var(--bg-white);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            transition: var(--transition);
+            border: 1px solid transparent;
+        }
+
+        .service-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--blue-deep);
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+        }
+
+        .service-icon {
+            width: 50px;
+            height: 50px;
+            background: #eff6ff;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            color: var(--blue-deep);
+            font-size: 1.5rem;
+        }
+
+        .service-card h3 {
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+        }
+
+        .service-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .service-card .phone-number {
+            font-size: 1.2rem;
+            color: var(--blue-deep);
+        }
+
+        /* Pharmacy Focus */
+        .pharmacy-guard {
+            background: var(--blue-deep);
+            color: white;
+            padding: 4rem 0;
+            margin: 4rem 0;
+            border-radius: 32px;
+        }
+
+        .pharmacy-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 3rem;
+        }
+
+        .pharmacy-info h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .pharmacy-card-highlight {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 2.5rem;
+            border-radius: 24px;
+            border: 1px solid rgba(255,255,255,0.2);
+            flex: 1;
+        }
+
+        .pharmacy-name {
+            font-size: 2.5rem;
+            font-family: 'Poppins', sans-serif;
+            margin-bottom: 0.5rem;
+        }
+
+        .pharmacy-location {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            opacity: 0.8;
+            margin-bottom: 1.5rem;
+        }
+
+        footer {
+            padding: 4rem 0 2rem;
+            text-align: center;
+            color: var(--text-muted);
+            border-top: 1px solid #e2e8f0;
+        }
+
+        @media (max-width: 968px) {
+            .hero {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            .hero-content p {
+                margin: 0 auto 2rem;
+            }
+            .pharmacy-content {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <div class="logo-placeholder">VOTRE LOGO ICI</div>
+            <nav class="nav-links">
+                <a href="#services">Services</a>
+                <a href="#pharmacie">Pharmacie de Garde</a>
+                <a href="#contact">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Hero Section -->
+        <section class="hero fade-in">
+            <div class="hero-content">
+                <h1>Urgences <br>Antsiranana</h1>
+                <p>Accédez instantanément aux numéros essentiels et aux services de garde de la ville de Diego-Suarez. La rapidité d'information sauve des vies.</p>
+                <div style="display: flex; gap: 1rem;">
+                    <a href="#services" style="background: var(--blue-deep); color: white; padding: 1rem 2rem; border-radius: 12px; text-decoration: none; font-weight: 600;">Voir les services</a>
+                </div>
+            </div>
+            <div class="emergency-banner">
+                <h2>Pompiers</h2>
+                <span class="phone-number">032 77 549 56</span>
+                <a href="tel:0327754956" class="btn-call">APPELER MAINTENANT</a>
+            </div>
+        </section>
+
+        <!-- Services Grid -->
+        <section id="services" class="services-section fade-in" style="animation-delay: 0.2s;">
+            <div class="section-title">
+                <h2>Services d'Intervention</h2>
+            </div>
+            <div class="services-grid">
+                <!-- Police -->
+                <div class="service-card">
+                    <div class="service-icon">🛡️</div>
+                    <h3>Police Centrale</h3>
+                    <p>Sécurité publique et interventions d'urgence en centre-ville.</p>
+                    <div class="phone-number">034 05 507 14</div>
+                </div>
+                <!-- FIP -->
+                <div class="service-card">
+                    <div class="service-icon">👮</div>
+                    <h3>FIP (Kabary)</h3>
+                    <p>Unité d'intervention rapide basée à Place Kabary.</p>
+                    <div class="phone-number">034 05 998 60</div>
+                </div>
+                <!-- Ambulance Homi -->
+                <div class="service-card">
+                    <div class="service-icon">🚑</div>
+                    <h3>Ambulance Homi</h3>
+                    <p>Service d'urgence de l'Hôpital Militaire (Lazaret Nord).</p>
+                    <div class="phone-number">032 84 794 64</div>
+                </div>
+                <!-- Hopital BE -->
+                <div class="service-card">
+                    <div class="service-icon">🏥</div>
+                    <h3>Hôpital BE</h3>
+                    <p>Centre hospitalier de référence, service des urgences (Centre Ville).</p>
+                    <div class="phone-number">032 40 794 15</div>
+                </div>
+                <!-- Police Manongalaza -->
+                <div class="service-card">
+                    <div class="service-icon">🚓</div>
+                    <h3>Police Manongalaza</h3>
+                    <p>Poste de police pour le quartier de Manongalaza.</p>
+                    <div class="phone-number">034 05 440 66</div>
+                </div>
+                <!-- Policlinique -->
+                <div class="service-card">
+                    <div class="service-icon">🩺</div>
+                    <h3>Ambulance Policlinique</h3>
+                    <p>Service d'ambulance privé disponible au Centre Ville.</p>
+                    <div class="phone-number">034 49 110 11</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pharmacy Guard -->
+        <section id="pharmacie" class="pharmacy-guard fade-in" style="animation-delay: 0.4s;">
+            <div class="container">
+                <div class="pharmacy-content">
+                    <div class="pharmacy-info">
+                        <h2>Pharmacie de Garde</h2>
+                        <p>Cette semaine à Antsiranana, le service de garde est assuré par :</p>
+                    </div>
+                    <div class="pharmacy-card-highlight">
+                        <div class="pharmacy-name">Pharmacie Avenir</div>
+                        <div class="pharmacy-location">📍 32 Rue Lafayette, Avenir</div>
+                        <div class="phone-number" style="font-size: 2rem; margin-bottom: 1rem;">032 40 455 10</div>
+                        <div style="font-size: 0.9rem; opacity: 0.8;">Période : Du 27/06 au 04/07 2026</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Urgences Antsiranana. Informations mises à jour régulièrement.</p>
+            <p style="font-size: 0.8rem; margin-top: 1rem;">Développé pour la sécurité de la population de Diego-Suarez.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Subtile fade-in on scroll
+        const observerOptions = {
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.service-card').forEach(card => {
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html>
