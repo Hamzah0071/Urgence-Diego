@@ -11,10 +11,22 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-$is_logged_in = isset($_SESSION['user_id']);
+$is_logged_in = isset($_SESSION["id_utilisateur"]);
 
 // Récupérer les données
 $pharmacie_garde = getPharmacieGarde($pdo);
+
+// La police n'a pas de rotation "de garde" : on affiche le poste central fixe
+// enregistré dans services_urgence (nom_service = 'Police Centrale')
+$stmt_police = $pdo->prepare(
+    "SELECT su.nom_service, su.numero_telephone, su.adresse, q.nom_quartier
+     FROM services_urgence su
+     JOIN quartiers q ON su.id_quartier = q.id_quartier
+     WHERE su.nom_service = 'Police Centrale'
+     LIMIT 1"
+);
+$stmt_police->execute();
+$police_centrale = $stmt_police->fetch(PDO::FETCH_ASSOC);
 
 // Si l'utilisateur est connecté, récupérer tous les services
 if ($is_logged_in) {
@@ -47,7 +59,6 @@ $category_icons = [
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Urgences Antsiranana">
-    <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%231e40af' width='192' height='192'/><text x='50%' y='50%' font-size='100' fill='white' text-anchor='middle' dy='.3em'>🚨</text></svg>">
     <title>Urgence Antsiranana - Services d'Information</title>
     <link rel="stylesheet" href="./asset/icon/fontAwesome/all.min.css">
@@ -60,6 +71,7 @@ $category_icons = [
             --bg-light: #f8fafc;
             --bg-white: #ffffff;
             --blue-deep: #1e40af;
+            --blue-deep-dark: #1e3a8a;   /* variante foncée du bleu, utilisée pour la Police */
             --red-emergency: #dc2626;
             --text-dark: #1e293b;
             --text-muted: #64748b;
@@ -308,27 +320,30 @@ $category_icons = [
             color: var(--blue-deep);
         }
 
-        /* Pharmacy Focus */
-        .pharmacy-guard {
-            background: var(--blue-deep);
+        /* ============================================
+           Bloc "de garde" partagé : Pharmacie + Police
+           Même famille de couleurs (bleu) pour rester
+           cohérent avec la charte du site.
+           ============================================ */
+        .guard-block {
             color: white;
             padding: 1.5rem;
             margin: 2rem 0;
             border-radius: 20px;
         }
 
-        .pharmacy-content {
+        .guard-content {
             display: flex;
             flex-direction: column;
             gap: 1rem;
         }
 
-        .pharmacy-info h2 {
+        .guard-info h2 {
             font-size: 1.3rem;
             margin-bottom: 0.5rem;
         }
 
-        .pharmacy-card-highlight {
+        .guard-card-highlight {
             background: rgba(255,255,255,0.15);
             backdrop-filter: blur(10px);
             padding: 1.5rem;
@@ -336,13 +351,13 @@ $category_icons = [
             border: 1px solid rgba(255,255,255,0.2);
         }
 
-        .pharmacy-name {
+        .guard-name {
             font-size: 1.8rem;
             font-family: 'Poppins', sans-serif;
             margin-bottom: 0.5rem;
         }
 
-        .pharmacy-location {
+        .guard-location {
             display: flex;
             align-items: center;
             gap: 0.5rem;
@@ -351,10 +366,36 @@ $category_icons = [
             font-size: 0.95rem;
         }
 
-        .pharmacy-dates {
+        .guard-dates {
             font-size: 0.85rem;
             opacity: 0.8;
             margin-top: 1rem;
+        }
+
+        .guard-call {
+            display: inline-block;
+            background: white;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 700;
+            margin-top: 0.75rem;
+        }
+
+        /* Pharmacie : bleu principal du site */
+        .pharmacy-guard {
+            background: var(--blue-deep);
+        }
+        .pharmacy-guard .guard-call {
+            color: var(--blue-deep);
+        }
+
+        /* Police : variante plus foncée du même bleu, pas noir/gris */
+        .police-guard {
+            background: var(--blue-deep-dark);
+        }
+        .police-guard .guard-call {
+            color: var(--blue-deep-dark);
         }
 
         /* Restricted Content */
@@ -553,7 +594,7 @@ $category_icons = [
             }
 
             .btn-register:hover {
-                background: #1e3a8a;
+                background: var(--blue-deep-dark);
             }
 
             .bottom-nav {
@@ -583,6 +624,17 @@ $category_icons = [
             .cta-buttons a {
                 flex: 1;
             }
+
+            /* Sur desktop, Pharmacie et Police côte à côte */
+            .guard-row {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 1.5rem;
+            }
+
+            .guard-row .guard-block {
+                margin: 0;
+            }
         }
 
         @media (min-width: 1024px) {
@@ -600,10 +652,11 @@ $category_icons = [
             <nav class="nav-links">
                 <a href="#services">Services</a>
                 <a href="#pharmacie">Pharmacie</a>
-                
+                <a href="#police">Police</a>
+
                 <?php if ($is_logged_in): ?>
                     <div style="display: flex; gap: 1rem; align-items: center;">
-                        <a href="dashboard.php" style="color: var(--blue-deep); font-weight: 600;">👤 <?php echo htmlspecialchars($_SESSION['user_prenom']); ?></a>
+                        <a href="#" style="color: var(--blue-deep); font-weight: 600;">👤 <?php echo htmlspecialchars($_SESSION['user_prenom']); ?></a>
                         <a href="logout.php" style="background: var(--red-emergency); color: white; padding: 0.6rem 1.2rem; border-radius: 8px; text-decoration: none; font-weight: 600;">Déconnexion</a>
                     </div>
                 <?php else: ?>
@@ -639,29 +692,54 @@ $category_icons = [
             </div>
         </section>
 
-        <!-- Pharmacy Guard (Visible pour tous) -->
-        <section id="pharmacie" class="pharmacy-guard fade-in" style="animation-delay: 0.2s;">
-            <div class="pharmacy-content">
-                <div class="pharmacy-info">
-                    <h2><i class="fa-solid fa-staff-snake" style="color: rgb(99, 230, 190);"></i> Pharmacie de Garde</h2>
-                    <p style="font-size: 0.9rem; opacity: 0.9;">Cette semaine :</p>
+        <!-- Pharmacie de Garde + Police Centrale : même famille de bleu -->
+        <div class="guard-row">
+            <!-- Pharmacy Guard (Visible pour tous) -->
+            <section id="pharmacie" class="guard-block pharmacy-guard fade-in" style="animation-delay: 0.2s;">
+                <div class="guard-content">
+                    <div class="guard-info">
+                        <h2><i class="fa-solid fa-staff-snake" style="color: rgb(99, 230, 190);"></i> Pharmacie de Garde</h2>
+                        <p style="font-size: 0.9rem; opacity: 0.9;">Cette semaine :</p>
+                    </div>
+
+                    <?php if ($pharmacie_garde): ?>
+                        <div class="guard-card-highlight">
+                            <div class="guard-name"><?php echo htmlspecialchars($pharmacie_garde['nom_service']); ?></div>
+                            <div class="guard-location"><i class="fa-solid fa-location-dot"></i> <?php echo htmlspecialchars($pharmacie_garde['nom_quartier']); ?></div>
+                            <a href="tel:<?php echo str_replace(' ', '', $pharmacie_garde['numero_telephone']); ?>" class="guard-call">
+                                <span class="phone-number"><?php echo htmlspecialchars($pharmacie_garde['numero_telephone']); ?></span>
+                            </a>
+                        </div>
+                    <?php else: ?>
+                        <div class="guard-card-highlight">
+                            <p><i class="fa-solid fa-exclamation-triangle"></i> Aucune pharmacie assignée.</p>
+                        </div>
+                    <?php endif; ?>
                 </div>
-                
-                <?php if ($pharmacie_garde): ?>
-                    <div class="pharmacy-card-highlight">
-                        <div class="pharmacy-name"><?php echo htmlspecialchars($pharmacie_garde['nom_service']); ?></div>
-                        <div class="pharmacy-location"><i class="fa-solid fa-location-dot"></i> <?php echo htmlspecialchars($pharmacie_garde['nom_quartier']); ?></div>
-                        <a href="tel:<?php echo str_replace(' ', '', $pharmacie_garde['numero_telephone']); ?>" style="display: inline-block; background: white; color: var(--blue-deep); padding: 0.75rem 1rem; border-radius: 12px; text-decoration: none; font-weight: 700; margin-top: 0.75rem;">
-                            <span class="phone-number"><?php echo htmlspecialchars($pharmacie_garde['numero_telephone']); ?></span>
-                        </a>
+            </section>
+
+            <!-- Police Centrale (poste fixe, visible pour tous) -->
+            <section id="police" class="guard-block police-guard fade-in" style="animation-delay: 0.3s;">
+                <div class="guard-content">
+                    <div class="guard-info">
+                        <h2><i class="fa-solid fa-shield-halved"></i> Police Centrale</h2>
                     </div>
-                <?php else: ?>
-                    <div class="pharmacy-card-highlight">
-                        <p><i class="fa-solid fa-exclamation-triangle"></i> Aucune pharmacie assignée.</p>
-                    </div>
-                <?php endif; ?>
-            </div>
-        </section>
+
+                    <?php if ($police_centrale): ?>
+                        <div class="guard-card-highlight">
+                            <div class="guard-location"><i class="fa-solid fa-location-dot"></i> <?php echo htmlspecialchars($police_centrale['adresse']); ?> (<?php echo htmlspecialchars($police_centrale['nom_quartier']); ?>)</div>
+                            <a href="tel:<?php echo str_replace(' ', '', $police_centrale['numero_telephone']); ?>" class="guard-call">
+                                <span class="phone-number"><?php echo htmlspecialchars($police_centrale['numero_telephone']); ?></span>
+                            </a>
+                        </div>
+                    <?php else: ?>
+                        <div class="guard-card-highlight">
+                            <p><i class="fa-solid fa-exclamation-triangle"></i> Numéro non disponible.</p>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </section>
+        </div>
 
         <!-- Services Section (Restreint aux utilisateurs connectés) -->
         <?php if ($is_logged_in): ?>
@@ -669,12 +747,12 @@ $category_icons = [
                 <div class="section-title">
                     <h2>Services d'Intervention</h2>
                 </div>
-                
+
                 <?php if (count($services) > 0): ?>
                     <div class="services-grid">
-                        <?php foreach ($services as $service): 
-                            $icon = isset($category_icons[$service['nom_categorie']]) 
-                                    ? $category_icons[$service['nom_categorie']] 
+                        <?php foreach ($services as $service):
+                            $icon = isset($category_icons[$service['nom_categorie']])
+                                    ? $category_icons[$service['nom_categorie']]
                                     : '<i class="fa-solid fa-phone"></i>';
                         ?>
                             <a href="tel:<?php echo str_replace(' ', '', $service['numero_telephone']); ?>" style="text-decoration: none; color: inherit;">
@@ -719,7 +797,7 @@ $category_icons = [
             <div>Accueil</div>
         </a>
         <?php if ($is_logged_in): ?>
-            <a href="dashboard.php" class="nav-item">
+            <a href="#" class="nav-item">
                 <div class="nav-item-icon">
                     <i class="fa-solid fa-user"></i>
                 </div>
@@ -733,11 +811,11 @@ $category_icons = [
             </a>
         <?php else: ?>
             <a href="login.php" class="nav-item">
-                <div class="nav-item-icon"><i class="fa-solid fa-door-open" "></i></div>
+                <div class="nav-item-icon"><i class="fa-solid fa-door-open"></i></div>
                 <div>Connexion</div>
             </a>
             <a href="register.php" class="nav-item">
-                <div class="nav-item-icon"><i class="fa-solid fa-user-plus"></i></i></div>
+                <div class="nav-item-icon"><i class="fa-solid fa-user-plus"></i></div>
                 <div>Inscription</div>
             </a>
         <?php endif; ?>

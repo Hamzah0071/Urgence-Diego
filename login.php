@@ -12,8 +12,8 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // Vérifier si l'utilisateur est déjà connecté
-if (isset($_SESSION['user_id'])) {
-    header("Location: acceuil.php");
+if (isset($_SESSION['id_utilisateur'])) {
+    header("Location: home.php");
     exit();
 }
 
@@ -50,15 +50,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if ($user && $password_hashed === $user['mot_de_passe']) {
                 // Créer la session
-                $_SESSION['user_id'] = $user['id_utilisateur'];
+                $_SESSION['id_utilisateur'] = $user['id_utilisateur'];
                 $_SESSION['user_email'] = $user['email'];
                 $_SESSION['user_nom'] = $user['nom'];
                 $_SESSION['user_prenom'] = $user['prenom'];
                 $_SESSION['user_role'] = $user['nom_role'] ?? 'Utilisateur';
                 $_SESSION['user_quartier'] = $user['id_quartier'];
 
-                // Rediriger vers le tableau de bord
-                header("Location: dashboard.php");
+                // Rediriger selon le rôle
+                if ($_SESSION['user_role'] === 'Administrateur') {
+                    header("Location: admin/admin_index.php");
+                } else {
+                    header("Location: home.php");
+                }
                 exit();
             } else {
                 $errors[] = "Email ou mot de passe incorrect.";

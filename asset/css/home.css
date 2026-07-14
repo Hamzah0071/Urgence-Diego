@@ -1,0 +1,298 @@
+/* ============================================
+   Urgences Antsiranana - Navigation (home.css)
+   Mobile-first, cohérent avec la charte du site
+   ============================================ */
+
+:root {
+    --bg-light: #f8fafc;
+    --bg-white: #ffffff;
+    --blue-deep: #1e40af;
+    --blue-deep-dark: #1e3a8a;
+    --red-emergency: #dc2626;
+    --pharmacie-accent: #63e6be;
+    --text-dark: #1e293b;
+    --text-muted: #64748b;
+    --transition: all 0.25s ease;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg-light);
+    color: var(--text-dark);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+/* ---------- Header ---------- */
+header {
+    background: var(--blue-deep);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+}
+
+.header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+}
+
+.mobile-menu-btn {
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 1.4rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+/* ---------- Nav : version mobile (petit dropdown ancré sous le hamburger) ---------- */
+.header-inner {
+    position: relative;
+}
+
+.top-nav {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 1rem;
+    min-width: 200px;
+    max-width: 260px;
+    background: var(--bg-white);
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: 0.5rem;
+    border-radius: 14px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+    transform: translateY(-6px) scale(0.97);
+    transform-origin: top right;
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
+    transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
+    z-index: 1001;
+}
+
+.top-nav.open {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+    visibility: visible;
+}
+
+.top-nav a {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    color: var(--text-dark);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 0.7rem 0.8rem;
+    border-radius: 10px;
+    transition: var(--transition);
+    white-space: nowrap;
+}
+
+.top-nav a i {
+    width: 18px;
+    text-align: center;
+    font-size: 0.95rem;
+    flex-shrink: 0;
+    color: var(--blue-deep);
+}
+
+.top-nav a:hover,
+.top-nav a:active {
+    background: #eff6ff;
+}
+
+.top-nav a.active {
+    color: var(--blue-deep);
+    background: #eff6ff;
+}
+
+/* Accent Pharmacie demandé : #63e6be */
+.top-nav a.nav-pharmacie,
+.top-nav a.nav-pharmacie i {
+    color: #14b892;
+}
+
+.top-nav a.nav-pharmacie:hover {
+    background: rgba(99, 230, 190, 0.15);
+}
+
+.top-nav a.btn-logout {
+    margin-top: 0.3rem;
+    background: var(--red-emergency);
+    color: #ffffff;
+    justify-content: center;
+}
+
+.top-nav a.btn-logout i {
+    color: #ffffff;
+}
+
+.top-nav a.btn-logout:hover {
+    background: #b91c1c;
+}
+
+/* Zone invisible pour fermer le menu au clic à l'extérieur */
+.nav-backdrop {
+    position: fixed;
+    inset: 0;
+    top: 60px;
+    background: transparent;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 998;
+}
+
+.nav-backdrop.open {
+    pointer-events: auto;
+}
+
+/* Conteneurs internes : neutres sur mobile (les liens restent des enfants
+   directs de .top-nav dans le flux), activés seulement en desktop */
+.nav-links-scroll,
+.nav-actions {
+    display: contents;
+}
+
+/* ---------- Nav : version tablette / desktop ---------- */
+@media (min-width: 768px) {
+    .mobile-menu-btn {
+        display: none;
+    }
+
+    .nav-backdrop {
+        display: none;
+    }
+
+    .top-nav {
+        position: static;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        align-items: center;
+        background: transparent;
+        padding: 0;
+        gap: 0;
+        transform: none;
+        opacity: 1;
+        pointer-events: auto;
+        visibility: visible;
+        overflow: visible;
+        box-shadow: none;
+        max-width: none;
+        width: 100%;
+    }
+
+    .top-nav a {
+        padding: 0.5rem 0.65rem;
+        font-size: 0.85rem;
+        gap: 0.4rem;
+        border-radius: 8px;
+    }
+
+    .top-nav a i {
+        width: auto;
+        font-size: 0.95rem;
+    }
+
+    /* Liens principaux : scrollables horizontalement s'ils ne tiennent pas,
+       plutôt que de retomber moche sur une 2e ligne */
+    .nav-links-scroll {
+        display: flex;
+        align-items: center;
+        gap: 0.15rem;
+        flex: 1 1 auto;
+        min-width: 0;
+        overflow-x: auto;
+        scrollbar-width: none;
+        -webkit-mask-image: linear-gradient(to right, black calc(100% - 28px), transparent 100%);
+        mask-image: linear-gradient(to right, black calc(100% - 28px), transparent 100%);
+    }
+
+    .nav-links-scroll::-webkit-scrollbar {
+        display: none;
+    }
+
+    .nav-links-scroll a {
+        flex-shrink: 0;
+    }
+
+    /* Sur fond bleu, le texte doit rester lisible (pas le gris foncé du menu mobile) */
+    .top-nav a {
+        color: rgba(255, 255, 255, 0.85);
+    }
+
+    .top-nav a i {
+        color: rgba(255, 255, 255, 0.85);
+    }
+
+    .top-nav a:hover,
+    .top-nav a:active {
+        background: rgba(255, 255, 255, 0.14);
+        color: #ffffff;
+    }
+
+    .top-nav a:hover i {
+        color: #ffffff;
+    }
+
+    .top-nav a.active {
+        background: #ffffff;
+        color: var(--blue-deep);
+    }
+
+    .top-nav a.active i {
+        color: var(--blue-deep);
+    }
+
+    .top-nav a.nav-pharmacie,
+    .top-nav a.nav-pharmacie i {
+        color: #63e6be;
+    }
+
+    .top-nav a.nav-pharmacie:hover {
+        background: rgba(99, 230, 190, 0.18);
+    }
+
+    /* Actions (Déconnexion) : toujours visibles, jamais coupées par le scroll */
+    .nav-actions {
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+        margin-left: 0.75rem;
+    }
+
+    .top-nav a.btn-logout {
+        margin-top: 0;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .top-nav a {
+        padding: 0.55rem 0.85rem;
+        font-size: 0.9rem;
+    }
+}
