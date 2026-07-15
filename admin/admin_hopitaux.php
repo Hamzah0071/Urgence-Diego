@@ -1,6 +1,6 @@
 <?php
-require_once './includes/admin_session.php';
-require_once '../db_connect.php';
+require_once '../includes/admin_session.php';
+require_once '../includes/db_connect.php';
 
 $message = '';
 $id_categorie_hopital = 4; // ID pour la catégorie 'Hôpital'
@@ -69,7 +69,7 @@ $hopitaux = $stmt_hopitaux->fetchAll(PDO::FETCH_ASSOC);
 // Récupérer la liste des quartiers pour les formulaires
 $quartiers = getQuartiers($pdo);
 
-include './includes/admin_header.php';
+include '../includes/admin_header.php';
 ?>
 
 <header>
@@ -314,5 +314,6 @@ include './includes/admin_header.php';
 </script>
 
 <?php
-include 'admin_footer.php';
+// Inclure le pied de page
+include '../includes/admin_footer.php';
 ?>

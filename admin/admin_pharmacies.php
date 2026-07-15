@@ -1,7 +1,7 @@
 
 <?php
-require_once './includes/admin_session.php';
-require_once '../db_connect.php';
+require_once '../includes/admin_session.php';
+require_once '../includes/db_connect.php';
 
 $message = '';
 
@@ -98,18 +98,12 @@ $pharmacies = $stmt_pharmacies->fetchAll(PDO::FETCH_ASSOC);
 // Récupérer la liste des quartiers pour les formulaires
 $quartiers = getQuartiers($pdo);
 
-include './includes/admin_header.php';
+include '../includes/admin_header.php';
 
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pharmacies</title>
-</head>
-
-
+ <title>Pharmacies</title>
+ 
+<main class="admin-content">
     <div class="admin-container">
     <div class="admin-content">
         <header>
@@ -136,6 +130,15 @@ include './includes/admin_header.php';
         </section>
     </div>
 </div>
+
+
+    </main>
+</div>
+
+   
+
+
+
 
 
 <style>
@@ -283,7 +286,7 @@ include './includes/admin_header.php';
 </script>
 
 
-    <?php include './includes/admin_footer.php' ?>
+    <?php include '../includes/admin_footer.php' ?>
     
 
 </body>

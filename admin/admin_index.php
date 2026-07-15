@@ -32,12 +32,14 @@ $recent_updates = $stmt_recent_updates->fetchAll(PDO::FETCH_ASSOC);
 // Inclure l'en-tête et la barre latérale
 include '../includes/admin_header.php';
 ?>
-<section class="hero">
-    
-    
-</section>
 
 
+<main class="admin-content">
+
+
+
+    </main>
+</div>
     
    
 

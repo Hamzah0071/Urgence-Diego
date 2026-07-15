@@ -1,6 +1,6 @@
 <?php
-require_once './includes/admin_session.php';
-require_once '../db_connect.php';
+require_once '../includes/admin_session.php';
+require_once '../includes/db_connect.php';
 
 $message = '';
 
@@ -78,7 +78,7 @@ $utilisateurs = $stmt_utilisateurs->fetchAll(PDO::FETCH_ASSOC);
 $roles = $pdo->query("SELECT id_role, nom_role FROM roles ORDER BY nom_role")->fetchAll(PDO::FETCH_ASSOC);
 $quartiers = getQuartiers($pdo);
 
-include './includes/admin_header.php';
+include '../includes/admin_header.php';
 
 ?>
 
@@ -361,5 +361,5 @@ include './includes/admin_header.php';
 </script>
 
 <?php
-include 'admin_footer.php';
+include '../includes/admin_footer.php';
 ?>

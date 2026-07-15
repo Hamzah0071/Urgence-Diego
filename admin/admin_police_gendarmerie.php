@@ -1,6 +1,6 @@
 <?php
-require_once './includes/admin_session.php';
-require_once '../db_connect.php';
+require_once '../includes/admin_session.php';
+require_once '../includes/db_connect.php';
 
 $message = '';
 $id_categorie_force_ordre = 3; // ID pour la catégorie 'Force de l'ordre'
@@ -69,7 +69,7 @@ $forces_ordre = $stmt_forces_ordre->fetchAll(PDO::FETCH_ASSOC);
 // Récupérer la liste des quartiers pour les formulaires
 $quartiers = getQuartiers($pdo);
 
-include './includes/admin_header.php';
+include '../includes/admin_header.php';
 
 ?>
 
@@ -308,5 +308,5 @@ include './includes/admin_header.php';
 </script>
 
 <?php
-include 'admin_footer.php';
+include '../includes/admin_footer.php';
 ?>
