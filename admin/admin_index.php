@@ -32,22 +32,16 @@ $recent_updates = $stmt_recent_updates->fetchAll(PDO::FETCH_ASSOC);
 // Inclure l'en-tête et la barre latérale
 include '../includes/admin_header.php';
 ?>
+<section class="hero">
+    
+    
+</section>
 
-            <header>
-                <div class="header-title">
-                    <h1>Tableau de Bord</h1>
-                    <p>Bienvenue dans l'espace de gestion des services d'urgence d'Antsiranana.</p>
-                </div>
-                <!-- bouton de profil useur -->
-                <!-- <div class="user-profile">
-                    <span> echo htmlspecialchars($admin_user['nom_role']); ?></span>
-                    <img src="https://via.placeholder.com/40" alt="Profile">
-                </div> --> 
-            </header>
 
-            
+    
+   
 
 <?php
 // Inclure le pied de page
-include 'admin_footer.php';
+include '../includes/admin_footer.php';
 ?>
