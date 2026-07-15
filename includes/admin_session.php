@@ -2,7 +2,7 @@
 session_start();
 
 // Inclure le fichier de connexion à la base de données
-require_once './db_connect.php';
+require_once __DIR__ . '/db_connect.php';
 
 // Vérifier si l'utilisateur est connecté
 if (!isset($_SESSION["id_utilisateur"])) {

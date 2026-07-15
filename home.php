@@ -1,6 +1,6 @@
 <?php
 require_once './includes/session.php';
-require_once './db_connect.php';
+require_once './includes/db_connect.php';
 ?>
 <!DOCTYPE html>
 <html lang="fr">

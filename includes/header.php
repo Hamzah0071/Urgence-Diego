@@ -1,3 +1,8 @@
+<?php
+require_once __DIR__ . '/session.php';
+$current_page = basename($_SERVER['PHP_SELF']); // ex: "admin_pharmacies.php"
+?>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -24,10 +29,7 @@
                 <i class="fa-solid fa-bars"></i>
             </button>
 
-<?php
-require_once './includes/session.php';
-$current_page = basename($_SERVER['PHP_SELF']); // ex: "admin_pharmacies.php"
-?>
+
 
             <!-- Navigation : liste déroulante sur mobile, barre horizontale sur tablette/PC -->
             <nav class="top-nav" id="topNav">
@@ -58,6 +60,25 @@ $current_page = basename($_SERVER['PHP_SELF']); // ex: "admin_pharmacies.php"
             <div class="nav-backdrop" id="navBackdrop" onclick="toggleMobileMenu()"></div>
         </div>
     </header>
+
+    <script>
+        function toggleMobileMenu() {
+            document.getElementById('topNav').classList.toggle('open');
+            document.getElementById('navBackdrop').classList.toggle('open');
+        }
+
+        // Ferme le menu automatiquement quand on clique un lien (mobile)
+        document.querySelectorAll('#topNav a').forEach(function (link) {
+            link.addEventListener('click', function () {
+                if (window.innerWidth < 768) {
+                    document.getElementById('topNav').classList.remove('open');
+                    document.getElementById('navBackdrop').classList.remove('open');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
 
     
 

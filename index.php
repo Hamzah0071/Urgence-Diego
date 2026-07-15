@@ -4,7 +4,7 @@
  * Optimisée Mobile-First pour les utilisateurs en situation d'urgence
  */
 
-require_once 'db_connect.php';
+require_once './includes/db_connect.php';
 
 // Vérifier si l'utilisateur est connecté
 if (session_status() === PHP_SESSION_NONE) {

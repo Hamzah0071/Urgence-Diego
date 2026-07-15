@@ -4,7 +4,7 @@
  * Version simplifiée sans Google OAuth
  */
 
-require_once 'db_connect.php';
+require_once './includes/db_connect.php';
 
 // Démarrer la session
 if (session_status() === PHP_SESSION_NONE) {

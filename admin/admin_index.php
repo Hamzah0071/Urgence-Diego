@@ -1,6 +1,6 @@
 <?php
-require_once './includes/admin_session.php';
-require_once '../db_connect.php';
+require_once '../includes/admin_session.php';
+require_once '../includes/db_connect.php';
 
 // Récupérer les données pour les statistiques
 // Nombre de pharmacies de garde (pour aujourd'hui)
@@ -30,7 +30,7 @@ $stmt_recent_updates = $pdo->query("
 $recent_updates = $stmt_recent_updates->fetchAll(PDO::FETCH_ASSOC);
 
 // Inclure l'en-tête et la barre latérale
-include './includes/admin_header.php';
+include '../includes/admin_header.php';
 ?>
 
             <header>

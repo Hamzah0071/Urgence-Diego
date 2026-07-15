@@ -1,5 +1,6 @@
 <?php
-require_once './includes/admin_session.php';
+require_once __DIR__ . '/admin_session.php';
+$current_page = basename($_SERVER['PHP_SELF']); // ex: "admin_pharmacies.php"
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -34,10 +35,7 @@ require_once './includes/admin_session.php';
                 <span>Admin Urgence</span>
             </div>
 
-            <?php
-require_once './includes/admin_session.php';
-$current_page = basename($_SERVER['PHP_SELF']); // ex: "admin_pharmacies.php"
-?>
+            
 
             <nav class="sidebar-nav">
                 <ul class="nav-links">
@@ -67,3 +65,26 @@ $current_page = basename($_SERVER['PHP_SELF']); // ex: "admin_pharmacies.php"
         </header>
 
         <main class="admin-content">
+
+        </main>
+
+    </div>
+
+    <script>
+        function toggleAdminMenu() {
+            document.getElementById('adminSidebar').classList.toggle('open');
+            document.getElementById('sidebarBackdrop').classList.toggle('open');
+        }
+
+        // Ferme le menu automatiquement après avoir choisi un lien (mobile)
+        document.querySelectorAll('#adminSidebar .nav-links a').forEach(function (link) {
+            link.addEventListener('click', function () {
+                if (window.innerWidth < 992) {
+                    document.getElementById('adminSidebar').classList.remove('open');
+                    document.getElementById('sidebarBackdrop').classList.remove('open');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
