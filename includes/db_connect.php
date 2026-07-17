@@ -1,3 +1,4 @@
+<!-- db-connection -->
 <?php
 $host = 'localhost';
 $dbname = 'urgences_antsiranana';

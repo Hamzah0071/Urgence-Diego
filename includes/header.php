@@ -36,7 +36,7 @@ $current_page = basename($_SERVER['PHP_SELF']); // ex: "admin_pharmacies.php"
                 <div class="nav-links-scroll">
                     <a href="#" class="<?= $current_page === 'accueil' ? 'active' : '' ?>">
                         <i class="fa-solid fa-house"></i> Accueil</a>
-                    <a href="#" class="<?= $current_page === 'articles' ? 'active' : '' ?>">
+                    <a href="actualites.php" class="<?= $current_page === 'articles' ? 'active' : '' ?>">
                         <i class="fa-solid fa-newspaper"></i> Articles</a>
                     <a href="#"  class="<?= $current_page === 'pharmacies' ? 'active' : '' ?>"class="nav-pharmacie">
                         <i class="fa-solid fa-staff-snake" style="color: rgb(99, 230, 190);"></i> Pharmacie</a>

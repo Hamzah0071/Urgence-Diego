@@ -31,8 +31,12 @@ $current_page = basename($_SERVER['PHP_SELF']); // ex: "admin_pharmacies.php"
 
             <nav class="sidebar-nav">
                 <ul class="nav-links">
+                    
                     <li class="<?= $current_page === 'admin_index.php' ? 'active' : '' ?>">
                         <a href="./admin_index.php"><i class="fas fa-home"></i> Dashboard</a>
+                    </li>
+                    <li class="<?= $current_page === 'admin_articles.php' ? 'active' : '' ?>">
+                        <a href="./admin_articles.php"><i class="fas fa-newspaper"></i> Articles</a>
                     </li>
                     <li class="<?= $current_page === 'admin_pharmacies.php' ? 'active' : '' ?>">
                         <a href="./admin_pharmacies.php"><i class="fas fa-pills"></i> Pharmacies</a>

@@ -1,3 +1,4 @@
+<!-- admin session -->
 <?php
 session_start();
 
