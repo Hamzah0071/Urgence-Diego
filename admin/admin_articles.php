@@ -144,6 +144,9 @@ include '../includes/admin_header.php';
             <header>
                 <h1>Gestion des Sources d'Articles</h1>
                 <p>Ajouter, modifier ou supprimer des flux RSS et des chaînes TV utilisés pour alimenter les actualités du site.</p>
+                <a href="import_articles.php" class="btn-primary" style="text-decoration:none; display:inline-block;">
+                    🔄 Actualiser les articles maintenant
+                </a>
             </header>
 
             <?php if ($erreur): ?><div class="alert erreur"><?php echo htmlspecialchars($erreur); ?></div><?php endif; ?>
