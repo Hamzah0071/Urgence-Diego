@@ -1,6 +1,7 @@
 -- ============================================================
 -- Base de données : urgences_antsiranana
 -- Création complète du schéma (sans migration de données)
+-- Version alignée sur l'état actuel de la base (18/07/2026)
 -- ============================================================
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
@@ -37,7 +38,8 @@ CREATE TABLE `quartier` (
 INSERT INTO `quartier` (`nom_quartier`) VALUES
   ('Place Kabary'), ('Avenir'), ('SCAMA'), ('Lazaret Nord'), ('Lazaret Sud'),
   ('Grand Pavois'), ('Tanambao V'), ('Ambalavola'), ('Soafeno'), ('Morafeno'),
-  ('Mahatsara'), ('Cité Ouvrière'), ('Tsaramandroso'), ('Bazar Kely'), ('Manongalaza');
+  ('Mahatsara'), ('Cité Ouvrière'), ('Tsaramandroso'), ('Bazar Kely'),
+  ('Manongalaza'), ('Tanambao Nord'), ('Tanambao Sud');
 
 -- ------------------------------------------------------------
 -- utilisateurs
@@ -62,7 +64,7 @@ CREATE TABLE `utilisateur` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- ------------------------------------------------------------
--- types de service (pharmacie, police, pompier, hopital...)
+-- types de service (pharmacie, force de l'ordre, pompier, hopital...)
 -- ------------------------------------------------------------
 CREATE TABLE `type_service` (
   `id_type` INT(11) NOT NULL AUTO_INCREMENT,
@@ -73,10 +75,10 @@ CREATE TABLE `type_service` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO `type_service` (`nom_type`) VALUES
-  ('Pharmacie'), ('Police'), ('Pompier'), ('Hôpital');
+  ('Pharmacie'), ('Pompier'), ('Force de l\'ordre'), ('Hôpital');
 
 -- ------------------------------------------------------------
--- services (remplace services_urgence + pharmacies)
+-- services
 -- ------------------------------------------------------------
 CREATE TABLE `service` (
   `id_service` INT(11) NOT NULL AUTO_INCREMENT,
@@ -129,31 +131,6 @@ CREATE TABLE `vehicule` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- ------------------------------------------------------------
--- caractéristiques simples (sans entité propre)
--- ------------------------------------------------------------
-CREATE TABLE `caracteristique` (
-  `id_caracteristique` INT(11) NOT NULL AUTO_INCREMENT,
-  `nom` VARCHAR(100) NOT NULL,
-  PRIMARY KEY (`id_caracteristique`),
-  UNIQUE KEY `nom` (`nom`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-INSERT INTO `caracteristique` (`nom`) VALUES
-  ('Accès handicapé'),
-  ('Parking disponible'),
-  ('Paiement mobile money');
-
-CREATE TABLE `service_caracteristique` (
-  `id_service` INT(11) NOT NULL,
-  `id_caracteristique` INT(11) NOT NULL,
-  `valeur` VARCHAR(255) DEFAULT NULL,
-  PRIMARY KEY (`id_service`, `id_caracteristique`),
-  KEY `id_caracteristique` (`id_caracteristique`),
-  CONSTRAINT `sc_ibfk_1` FOREIGN KEY (`id_service`) REFERENCES `service` (`id_service`) ON DELETE CASCADE,
-  CONSTRAINT `sc_ibfk_2` FOREIGN KEY (`id_caracteristique`) REFERENCES `caracteristique` (`id_caracteristique`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- ------------------------------------------------------------
 -- gardes (rotation, valable pour n'importe quel type de service)
 -- ------------------------------------------------------------
 CREATE TABLE `garde` (
@@ -169,19 +146,39 @@ CREATE TABLE `garde` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- ------------------------------------------------------------
+-- sources d'articles (flux RSS, réseaux sociaux...)
+-- ------------------------------------------------------------
+CREATE TABLE `sources_articles` (
+  `id_source` INT(11) NOT NULL AUTO_INCREMENT,
+  `nom_source` VARCHAR(150) NOT NULL,
+  `type_source` ENUM('rss','reseau_social') NOT NULL DEFAULT 'rss',
+  `url_flux` VARCHAR(500) NOT NULL,
+  `identifiant_page` VARCHAR(150) DEFAULT NULL,
+  `url_instance_bridge` VARCHAR(255) DEFAULT NULL,
+  `actif` TINYINT(1) NOT NULL DEFAULT 1,
+  `date_ajout` DATETIME DEFAULT current_timestamp(),
+  PRIMARY KEY (`id_source`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- ------------------------------------------------------------
 -- articles
 -- ------------------------------------------------------------
 CREATE TABLE `article` (
   `id_article` INT(11) NOT NULL AUTO_INCREMENT,
   `titre` VARCHAR(255) NOT NULL,
   `contenu` TEXT NOT NULL,
-  `id_auteur` INT(11) NOT NULL,
+  `lien_source` VARCHAR(500) DEFAULT NULL,
+  `id_auteur` INT(11) DEFAULT NULL,
+  `id_source` INT(11) DEFAULT NULL,
   `statut` ENUM('brouillon','publie','archive') NOT NULL DEFAULT 'brouillon',
   `date_publication` TIMESTAMP NOT NULL DEFAULT current_timestamp(),
   `derniere_modification` TIMESTAMP NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id_article`),
+  UNIQUE KEY `lien_source_unique` (`lien_source`),
   KEY `id_auteur` (`id_auteur`),
-  CONSTRAINT `article_ibfk_1` FOREIGN KEY (`id_auteur`) REFERENCES `utilisateur` (`id_utilisateur`)
+  KEY `id_source` (`id_source`),
+  CONSTRAINT `article_ibfk_1` FOREIGN KEY (`id_auteur`) REFERENCES `utilisateur` (`id_utilisateur`),
+  CONSTRAINT `article_ibfk_2` FOREIGN KEY (`id_source`) REFERENCES `sources_articles` (`id_source`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- ------------------------------------------------------------

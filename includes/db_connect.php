@@ -1,4 +1,3 @@
-<!-- db-connection -->
 <?php
 $host = 'localhost';
 $dbname = 'urgences_antsiranana';
@@ -20,7 +19,7 @@ try {
 
 // Retourne la liste de tous les quartiers
 function getQuartiers($pdo) {
-    $stmt = $pdo->query("SELECT id_quartier, nom_quartier FROM quartiers ORDER BY nom_quartier");
+    $stmt = $pdo->query("SELECT id_quartier, nom_quartier FROM quartier ORDER BY nom_quartier");
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
@@ -28,13 +27,15 @@ function getQuartiers($pdo) {
 function getPharmacieGarde($pdo) {
     $today = date('Y-m-d');
     $stmt = $pdo->prepare("
-        SELECT su.nom_service, su.numero_telephone, q.nom_quartier
-        FROM tours_garde tg
-        JOIN pharmacies p ON tg.id_pharmacie = p.id_pharmacie
-        JOIN services_urgence su ON p.id_service = su.id_service
-        JOIN quartiers q ON su.id_quartier = q.id_quartier
-        WHERE :today BETWEEN tg.date_debut AND tg.date_fin
-        ORDER BY tg.date_debut DESC
+        SELECT s.libelle AS nom_service, s.telephone AS numero_telephone, q.nom_quartier
+        FROM garde g
+        JOIN service s ON g.id_service = s.id_service
+        JOIN type_service ts ON s.id_type = ts.id_type
+        JOIN quartier q ON s.id_quartier = q.id_quartier
+        WHERE :today BETWEEN g.date_debut AND g.date_fin
+          AND ts.nom_type = 'Pharmacie'
+          AND s.actif = 1
+        ORDER BY g.date_debut DESC
         LIMIT 1
     ");
     $stmt->execute(['today' => $today]);
@@ -46,17 +47,18 @@ function getPharmacieGarde($pdo) {
 // Si $id_quartier est fourni, ne retourne que les services de ce quartier.
 function getServices($pdo, $id_quartier = null) {
     $sql = "
-        SELECT su.nom_service, su.numero_telephone, cs.nom_categorie, q.nom_quartier
-        FROM services_urgence su
-        JOIN categories_service cs ON su.id_categorie = cs.id_categorie
-        JOIN quartiers q ON su.id_quartier = q.id_quartier
+        SELECT s.libelle AS nom_service, s.telephone AS numero_telephone, ts.nom_type AS nom_categorie, q.nom_quartier
+        FROM service s
+        JOIN type_service ts ON s.id_type = ts.id_type
+        JOIN quartier q ON s.id_quartier = q.id_quartier
+        WHERE s.actif = 1
     ";
 
     if ($id_quartier) {
-        $sql .= " WHERE su.id_quartier = :id_quartier";
+        $sql .= " AND s.id_quartier = :id_quartier";
     }
 
-    $sql .= " ORDER BY cs.nom_categorie, su.nom_service";
+    $sql .= " ORDER BY ts.nom_type, s.libelle";
 
     $stmt = $pdo->prepare($sql);
     if ($id_quartier) {
