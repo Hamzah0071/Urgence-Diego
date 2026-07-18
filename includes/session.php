@@ -13,8 +13,8 @@ if (!isset($_SESSION["id_utilisateur"])) {
 // Récupérer les informations de l'utilisateur connecté (avec son rôle)
 $id_utilisateur = $_SESSION["id_utilisateur"];
 $stmt = $pdo->prepare("SELECT u.id_utilisateur, u.nom, u.email, u.id_role, r.nom_role 
-                       FROM utilisateurs u 
-                       JOIN roles r ON u.id_role = r.id_role 
+                       FROM utilisateur u 
+                       JOIN role r ON u.id_role = r.id_role 
                        WHERE u.id_utilisateur = :id_utilisateur");
 $stmt->execute(['id_utilisateur' => $id_utilisateur]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);

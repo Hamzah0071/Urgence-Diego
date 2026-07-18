@@ -17,12 +17,12 @@ $is_logged_in = isset($_SESSION["id_utilisateur"]);
 $pharmacie_garde = getPharmacieGarde($pdo);
 
 // La police n'a pas de rotation "de garde" : on affiche le poste central fixe
-// enregistré dans services_urgence (nom_service = 'Police Centrale')
+// enregistré dans la table service (libelle = 'Police Centrale')
 $stmt_police = $pdo->prepare(
-    "SELECT su.nom_service, su.numero_telephone, su.adresse, q.nom_quartier
-     FROM services_urgence su
-     JOIN quartiers q ON su.id_quartier = q.id_quartier
-     WHERE su.nom_service = 'Police Centrale'
+    "SELECT s.libelle AS nom_service, s.telephone AS numero_telephone, s.adresse, q.nom_quartier
+     FROM service s
+     JOIN quartier q ON s.id_quartier = q.id_quartier
+     WHERE s.libelle = 'Police Centrale'
      LIMIT 1"
 );
 $stmt_police->execute();
@@ -162,17 +162,6 @@ $category_icons = [
 
         .nav-links {
             display: none;
-        }
-
-        .mobile-menu-btn {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            padding: 0.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
         /* Hero Section Mobile-First */
@@ -438,6 +427,7 @@ $category_icons = [
             border: none;
             cursor: pointer;
             display: block;
+            text-align: center;
         }
 
         .cta-primary {
@@ -609,10 +599,6 @@ $category_icons = [
                 margin-bottom: 0;
             }
 
-            .mobile-menu-btn {
-                display: none;
-            }
-
             .services-grid {
                 grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             }
@@ -650,10 +636,6 @@ $category_icons = [
         <div class="container">
             <a href="index.php" class="logo-placeholder">URGENCES</a>
             <nav class="nav-links">
-                <a href="#services">Services</a>
-                <a href="#pharmacie">Pharmacie</a>
-                <a href="#police">Police</a>
-
                 <?php if ($is_logged_in): ?>
                     <div style="display: flex; gap: 1rem; align-items: center;">
                         <a href="#" style="color: var(--blue-deep); font-weight: 600;">👤 <?php echo htmlspecialchars($_SESSION['user_prenom']); ?></a>
@@ -666,7 +648,6 @@ $category_icons = [
                     </div>
                 <?php endif; ?>
             </nav>
-            <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
         </div>
     </header>
 
@@ -741,51 +722,7 @@ $category_icons = [
             </section>
         </div>
 
-        <!-- Services Section (Restreint aux utilisateurs connectés) -->
-        <?php if ($is_logged_in): ?>
-            <section id="services" class="services-section fade-in" style="animation-delay: 0.4s;">
-                <div class="section-title">
-                    <h2>Services d'Intervention</h2>
-                </div>
-
-                <?php if (count($services) > 0): ?>
-                    <div class="services-grid">
-                        <?php foreach ($services as $service):
-                            $icon = isset($category_icons[$service['nom_categorie']])
-                                    ? $category_icons[$service['nom_categorie']]
-                                    : '<i class="fa-solid fa-phone"></i>';
-                        ?>
-                            <a href="tel:<?php echo str_replace(' ', '', $service['numero_telephone']); ?>" style="text-decoration: none; color: inherit;">
-                                <div class="service-card">
-                                    <div>
-                                        <div class="service-icon"><?php echo $icon; ?></div>
-                                        <h3><?php echo htmlspecialchars($service['nom_service']); ?></h3>
-                                        <p><?php echo htmlspecialchars($service['nom_categorie']); ?></p>
-                                    </div>
-                                    <div class="phone-number"><?php echo htmlspecialchars($service['numero_telephone']); ?></div>
-                                </div>
-                            </a>
-                        <?php endforeach; ?>
-                    </div>
-                <?php else: ?>
-                    <div class="no-data">
-                        <p><i class="fa-solid fa-ban"></i> Aucun service disponible.</p>
-                    </div>
-                <?php endif; ?>
-            </section>
-        <?php else: ?>
-            <!-- Section Restreinte pour les visiteurs -->
-            <section class="restricted-section fade-in" style="animation-delay: 0.4s;">
-                <div class="restricted-content">
-                    <h2><i class="fa-solid fa-lock"></i> Services Détaillés</h2>
-                    <p>Inscrivez-vous pour accéder à la liste complète des services d'urgence de votre quartier.</p>
-                    <div class="cta-buttons">
-                        <a href="register.php" class="cta-primary">Créer un compte</a>
-                        <a href="login.php" class="cta-secondary">Se connecter</a>
-                    </div>
-                </div>
-            </section>
-        <?php endif; ?>
+       
     </main>
 
     <!-- Bottom Navigation Bar (Mobile) -->
@@ -832,10 +769,6 @@ $category_icons = [
         // Service Worker pour PWA
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js').catch(() => {});
-        }
-
-        function toggleMobileMenu() {
-            // À implémenter selon les besoins
         }
 
         // Empêcher le zoom sur double-tap

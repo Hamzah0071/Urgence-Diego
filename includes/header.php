@@ -35,21 +35,14 @@ $current_page = basename($_SERVER['PHP_SELF']); // ex: "admin_pharmacies.php"
             <nav class="top-nav" id="topNav">
                 <div class="nav-links-scroll">
                     <a href="#" class="<?= $current_page === 'accueil' ? 'active' : '' ?>">
-                        <i class="fa-solid fa-house"></i> Accueil</a>
+                        <i class="fa-solid fa-house"></i> Accueil
+                    </a>
                     <a href="actualites.php" class="<?= $current_page === 'articles' ? 'active' : '' ?>">
-                        <i class="fa-solid fa-newspaper"></i> Articles</a>
-                    <a href="#"  class="<?= $current_page === 'pharmacies' ? 'active' : '' ?>"class="nav-pharmacie">
-                        <i class="fa-solid fa-staff-snake" style="color: rgb(99, 230, 190);"></i> Pharmacie</a>
-                    <a href="#" class="<?= $current_page === 'ambulance' ? 'active' : '' ?>">
-                        <i class="fa-solid fa-truck-medical"></i> Ambulance</a>
-                    <a href="#" class="<?= $current_page === 'pompiers' ? 'active' : '' ?>">
-                        <i class="fa-solid fa-fire-extinguisher"></i> Pompiers</a>
-                    <a href="#" class="<?= $current_page === 'hopitaux' ? 'active' : '' ?>">
-                        <i class="fa-solid fa-hospital"></i> Hôpital</a>
-                    <a href="#" class="<?= $current_page === 'police' ? 'active' : '' ?>">
-                        <i class="fa-solid fa-shield-halved"></i> Police centrale</a>
-                    <a href="#" class="<?= $current_page === 'articles' ? 'active' : '' ?>">
-                        <i class="fa-solid fa-newspaper"></i> Articles</a>
+                        <i class="fa-solid fa-newspaper"></i> Articles
+                    </a>
+                    <a href="service-urgence.php" class="<?= $current_page === 'service-urgence' ? 'active' : '' ?>">
+                        <i class="fa-solid fa-tower-broadcast"></i> service d'urgence
+                    </a>
                     <a href="#"><i class="fa-solid fa-hand-holding-dollar"></i> Faire un don</a>
                 </div>
                 <div class="nav-actions">
