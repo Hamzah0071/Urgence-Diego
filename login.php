@@ -14,7 +14,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 // Vérifier si l'utilisateur est déjà connecté
 if (isset($_SESSION['id_utilisateur'])) {
-    header("Location: home.php");
+    header("Location: ./client/home.php");
     exit();
 }
 
@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($_SESSION['user_role'] === 'Administrateur') {
                     header("Location: admin/admin_index.php");
                 } else {
-                    header("Location: home.php");
+                    header("Location: ./client/home.php");
                 }
                 exit();
             } else {

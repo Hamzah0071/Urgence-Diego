@@ -1,21 +1,6 @@
-<?php
-require_once __DIR__ . '/session.php';
-$current_page = basename($_SERVER['PHP_SELF']);
-?>
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../asset/icon/fontAwesome/all.min.css">
-</head>
-
-<style>
-    /* ==========================================================
-   HEADER — fond blanc, texte bleu
-   Fichier UNIQUE : ne pas dupliquer ce CSS ailleurs (pas de
-   <style> dans header.php, pas de copie dans un autre fichier).
+/* ==========================================================
+   HEADER — variables à aligner avec celles de votre landing page
+   (mêmes couleurs / police / rayon de bordure = continuité visuelle)
    ========================================================== */
 :root {
     --header-bg: #ffffff;
@@ -25,17 +10,16 @@ $current_page = basename($_SERVER['PHP_SELF']);
     --color-text: #1d4ed8;         /* texte du header en bleu */
     --color-text-muted: #3b5bdb;
     --color-border: #eeeeee;
-    --color-danger: #e63946;
-    --color-danger-dark: #c1121f;
     --header-height: 72px;
-    --mobile-breakpoint: 900px;    /* doit correspondre à MOBILE_BREAKPOINT en JS */
     --transition-fast: 0.2s ease;
 }
 
 * {
     box-sizing: border-box;
-    font-family: 'Inter', sans-serif;
 }
+ body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
 
 .container {
     max-width: 1200px;
@@ -59,6 +43,10 @@ $current_page = basename($_SERVER['PHP_SELF']);
     border-bottom-color: var(--color-border);
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
 }
+
+.top-nav a {
+    color: rgba(0, 0, 0, 0.85);
+  }
 
 .header-inner {
     height: var(--header-height);
@@ -107,7 +95,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
 }
 
 #topNav.top-nav a {
-    color: var(--color-text);
+    color: var(--color-text) !important;
     text-decoration: none;
 }
 
@@ -125,7 +113,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
     border-radius: 999px;
     font-size: 0.95rem;
     font-weight: 500;
-    color: var(--color-text-muted);
+    color: var(--color-text-muted) !important;
     text-decoration: none;
     white-space: nowrap;
     transition: background var(--transition-fast), color var(--transition-fast);
@@ -133,18 +121,18 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
 #topNav .nav-links-scroll a:hover {
     background: rgba(29, 78, 216, 0.08);
-    color: var(--color-primary);
+    color: var(--color-primary) !important;
 }
 
 #topNav .nav-links-scroll a.active {
     background: rgba(29, 78, 216, 0.1);
-    color: var(--color-primary);
+    color: var(--color-primary) !important;
     font-weight: 600;
 }
 
 #topNav .nav-links-scroll a i {
     font-size: 0.9rem;
-    color: inherit;
+    color: inherit !important;
 }
 
 /* Bouton "Faire un don" mis en avant, cohérent avec un CTA de landing page */
@@ -171,23 +159,18 @@ $current_page = basename($_SERVER['PHP_SELF']);
     align-items: center;
     gap: 8px;
     padding: 9px 18px;
-    border: 1px solid var(--color-danger);
+    border: 1px solid var(--color-border);
     border-radius: 999px;
     font-size: 0.9rem;
-    font-weight: 600;
-    background: var(--color-danger) !important;
-    color: #ffffff !important;
+    font-weight: 500;
+    color: var(--color-text);
     text-decoration: none;
-    transition: background var(--transition-fast), opacity var(--transition-fast);
-}
-
-.btn-logout i {
-    color: #ffffff !important;
+    transition: border-color var(--transition-fast), background var(--transition-fast);
 }
 
 .btn-logout:hover {
-    background: var(--color-danger-dark) !important;
-    opacity: 0.9;
+    border-color: var(--color-primary);
+    background: rgba(29, 78, 216, 0.06);
 }
 
 /* ---------- Backdrop mobile ---------- */
@@ -197,8 +180,6 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
 /* ==========================================================
    RESPONSIVE — menu déroulant plein écran sur mobile
-   Le breakpoint (900px) doit rester identique à --mobile-breakpoint
-   et à MOBILE_BREAKPOINT dans le <script> de header.php
    ========================================================== */
 @media (max-width: 900px) {
     .mobile-menu-btn {
@@ -210,7 +191,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
         top: var(--header-height);
         right: 0;
         width: min(320px, 85vw);
-        height: calc(100dvh - var(--header-height));
+        height: calc(100vh - var(--header-height));
         background: var(--header-bg);
         flex-direction: column;
         align-items: stretch;
@@ -234,7 +215,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
         gap: 4px;
     }
 
-    #topNav .nav-links-scroll a {
+    .nav-links-scroll a {
         padding: 14px 16px;
         border-radius: 10px;
     }
@@ -268,72 +249,3 @@ $current_page = basename($_SERVER['PHP_SELF']);
         pointer-events: auto;
     }
 }
-</style>
-
-<header class="site-header">
-    <div class="container header-inner">
-        <a href="../home.php" class="logo-placeholder">
-            <i class="fa-solid fa-truck-medical logo-icon"></i>
-            URGENCES
-        </a>
-
-        <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Ouvrir le menu">
-            <i class="fa-solid fa-bars"></i>
-        </button>
-
-        <!-- Navigation : liste déroulante sur mobile, barre horizontale sur tablette/PC -->
-        <nav class="top-nav" id="topNav">
-            <div class="nav-links-scroll">
-                <a href="#" class="<?= $current_page === 'accueil' ? 'active' : '' ?>">
-                    <i class="fa-solid fa-house"></i> Accueil
-                </a>
-                <a href="actualites.php" class="<?= $current_page === 'articles' ? 'active' : '' ?>">
-                    <i class="fa-solid fa-newspaper"></i> Articles
-                </a>
-                <a href="service-urgence.php" class="<?= $current_page === 'service-urgence' ? 'active' : '' ?>">
-                    <i class="fa-solid fa-tower-broadcast"></i> Service d'urgence
-                </a>
-                <a href="faire-un-don.php" class="<?= $current_page === 'faire-un-don' ? 'active' : '' ?>">
-                    <i class="fa-solid fa-hand-holding-dollar"></i> Faire un don
-                </a>
-            </div>
-            <div class="nav-actions">
-                <a href="logout.php" class="btn-logout">
-                    <i class="fa-solid fa-user"></i> Déconnexion
-                </a>
-            </div>
-        </nav>
-
-        <div class="nav-backdrop" id="navBackdrop" onclick="toggleMobileMenu()"></div>
-    </div>
-</header>
-
-<script>
-    var MOBILE_BREAKPOINT = 900; // doit correspondre au @media du CSS
-
-    function toggleMobileMenu() {
-        document.getElementById('topNav').classList.toggle('open');
-        document.getElementById('navBackdrop').classList.toggle('open');
-    }
-
-    // Ferme le menu automatiquement quand on clique un lien (mobile)
-    document.querySelectorAll('#topNav a').forEach(function (link) {
-        link.addEventListener('click', function () {
-            if (window.innerWidth < MOBILE_BREAKPOINT) {
-                document.getElementById('topNav').classList.remove('open');
-                document.getElementById('navBackdrop').classList.remove('open');
-            }
-        });
-    });
-
-    // Effet "sticky" léger : petite ombre au scroll pour rester cohérent
-    // avec l'ambiance de la landing page sans effet brutal de changement de page
-    window.addEventListener('scroll', function () {
-        const header = document.querySelector('.site-header');
-        if (window.scrollY > 10) {
-            header.classList.add('scrolled');
-        } else {
-            header.classList.remove('scrolled');
-        }
-    });
-</script>

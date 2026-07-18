@@ -14,7 +14,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 // Vérifier si l'utilisateur est déjà connecté
 if (isset($_SESSION['id_utilisateur'])) {
-    header("Location: home.php");
+    header("Location: ./client/home.php");
     exit();
 }
 

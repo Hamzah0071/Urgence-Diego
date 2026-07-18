@@ -1,198 +1,563 @@
--- ============================================================
--- Base de données : urgences_antsiranana
--- Création complète du schéma (sans migration de données)
--- Version alignée sur l'état actuel de la base (18/07/2026)
--- ============================================================
+
+-- phpMyAdmin SQL Dump
+-- version 5.2.1
+-- https://www.phpmyadmin.net/
+--
+-- Hôte : 127.0.0.1
+-- Généré le : sam. 18 juil. 2026 à 20:38
+-- Version du serveur : 10.4.32-MariaDB
+-- Version de PHP : 8.0.30
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
 
--- ------------------------------------------------------------
--- roles
--- ------------------------------------------------------------
-CREATE TABLE `role` (
-  `id_role` INT(11) NOT NULL AUTO_INCREMENT,
-  `nom_role` VARCHAR(50) NOT NULL,
-  PRIMARY KEY (`id_role`),
-  UNIQUE KEY `nom_role` (`nom_role`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO `role` (`nom_role`) VALUES
-  ('Administrateur'),
-  ('Redacteur'),
-  ('Visiteur');
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
 
--- ------------------------------------------------------------
--- quartiers
--- ------------------------------------------------------------
-CREATE TABLE `quartier` (
-  `id_quartier` INT(11) NOT NULL AUTO_INCREMENT,
-  `nom_quartier` VARCHAR(100) NOT NULL,
-  `latitude` DECIMAL(10,7) DEFAULT NULL,
-  `longitude` DECIMAL(10,7) DEFAULT NULL,
-  PRIMARY KEY (`id_quartier`),
-  UNIQUE KEY `nom_quartier` (`nom_quartier`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+--
+-- Base de données : `urgences_antsiranana`
+--
 
-INSERT INTO `quartier` (`nom_quartier`) VALUES
-  ('Place Kabary'), ('Avenir'), ('SCAMA'), ('Lazaret Nord'), ('Lazaret Sud'),
-  ('Grand Pavois'), ('Tanambao V'), ('Ambalavola'), ('Soafeno'), ('Morafeno'),
-  ('Mahatsara'), ('Cité Ouvrière'), ('Tsaramandroso'), ('Bazar Kely'),
-  ('Manongalaza'), ('Tanambao Nord'), ('Tanambao Sud');
+-- --------------------------------------------------------
 
--- ------------------------------------------------------------
--- utilisateurs
--- ------------------------------------------------------------
-CREATE TABLE `utilisateur` (
-  `id_utilisateur` INT(11) NOT NULL AUTO_INCREMENT,
-  `nom` VARCHAR(100) NOT NULL,
-  `prenom` VARCHAR(100) NOT NULL,
-  `date_naissance` DATE DEFAULT NULL,
-  `id_quartier` INT(11) DEFAULT NULL,
-  `email` VARCHAR(255) NOT NULL,
-  `mot_de_passe` VARCHAR(255) NOT NULL,
-  `id_role` INT(11) NOT NULL,
-  `actif` TINYINT(1) NOT NULL DEFAULT 1,
-  `date_creation` TIMESTAMP NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id_utilisateur`),
-  UNIQUE KEY `email` (`email`),
-  KEY `id_role` (`id_role`),
-  KEY `id_quartier` (`id_quartier`),
-  CONSTRAINT `utilisateur_ibfk_1` FOREIGN KEY (`id_role`) REFERENCES `role` (`id_role`),
-  CONSTRAINT `utilisateur_ibfk_2` FOREIGN KEY (`id_quartier`) REFERENCES `quartier` (`id_quartier`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+--
+-- Structure de la table `article`
+--
 
--- ------------------------------------------------------------
--- types de service (pharmacie, force de l'ordre, pompier, hopital...)
--- ------------------------------------------------------------
-CREATE TABLE `type_service` (
-  `id_type` INT(11) NOT NULL AUTO_INCREMENT,
-  `nom_type` VARCHAR(100) NOT NULL,
-  `icone` VARCHAR(100) DEFAULT NULL,
-  PRIMARY KEY (`id_type`),
-  UNIQUE KEY `nom_type` (`nom_type`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-INSERT INTO `type_service` (`nom_type`) VALUES
-  ('Pharmacie'), ('Pompier'), ('Force de l\'ordre'), ('Hôpital');
-
--- ------------------------------------------------------------
--- services
--- ------------------------------------------------------------
-CREATE TABLE `service` (
-  `id_service` INT(11) NOT NULL AUTO_INCREMENT,
-  `libelle` VARCHAR(255) NOT NULL,
-  `telephone` VARCHAR(50) NOT NULL,
-  `adresse` VARCHAR(255) NOT NULL,
-  `latitude` DECIMAL(10,7) DEFAULT NULL,
-  `longitude` DECIMAL(10,7) DEFAULT NULL,
-  `id_quartier` INT(11) NOT NULL,
-  `id_type` INT(11) NOT NULL,
-  `actif` TINYINT(1) NOT NULL DEFAULT 1,
-  `description` TEXT DEFAULT NULL,
-  `date_creation` TIMESTAMP NOT NULL DEFAULT current_timestamp(),
-  `date_modification` TIMESTAMP NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  PRIMARY KEY (`id_service`),
-  KEY `id_quartier` (`id_quartier`),
-  KEY `id_type` (`id_type`),
-  CONSTRAINT `service_ibfk_1` FOREIGN KEY (`id_quartier`) REFERENCES `quartier` (`id_quartier`),
-  CONSTRAINT `service_ibfk_2` FOREIGN KEY (`id_type`) REFERENCES `type_service` (`id_type`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- ------------------------------------------------------------
--- types de véhicule (ambulance, livraison, fourgon...)
--- ------------------------------------------------------------
-CREATE TABLE `type_vehicule` (
-  `id_type_vehicule` INT(11) NOT NULL AUTO_INCREMENT,
-  `nom_type` VARCHAR(100) NOT NULL,
-  PRIMARY KEY (`id_type_vehicule`),
-  UNIQUE KEY `nom_type` (`nom_type`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-INSERT INTO `type_vehicule` (`nom_type`) VALUES
-  ('Ambulance'), ('Véhicule de livraison'), ('Fourgon'), ('Camion');
-
--- ------------------------------------------------------------
--- véhicules rattachés à un service (0, 1 ou plusieurs par service)
--- ------------------------------------------------------------
-CREATE TABLE `vehicule` (
-  `id_vehicule` INT(11) NOT NULL AUTO_INCREMENT,
-  `id_service` INT(11) NOT NULL,
-  `id_type_vehicule` INT(11) NOT NULL,
-  `nom` VARCHAR(255) DEFAULT NULL,
-  `telephone` VARCHAR(50) DEFAULT NULL,
-  `actif` TINYINT(1) NOT NULL DEFAULT 1,
-  PRIMARY KEY (`id_vehicule`),
-  KEY `id_service` (`id_service`),
-  KEY `id_type_vehicule` (`id_type_vehicule`),
-  CONSTRAINT `vehicule_ibfk_1` FOREIGN KEY (`id_service`) REFERENCES `service` (`id_service`) ON DELETE CASCADE,
-  CONSTRAINT `vehicule_ibfk_2` FOREIGN KEY (`id_type_vehicule`) REFERENCES `type_vehicule` (`id_type_vehicule`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- ------------------------------------------------------------
--- gardes (rotation, valable pour n'importe quel type de service)
--- ------------------------------------------------------------
-CREATE TABLE `garde` (
-  `id_garde` INT(11) NOT NULL AUTO_INCREMENT,
-  `id_service` INT(11) NOT NULL,
-  `date_debut` DATE NOT NULL,
-  `date_fin` DATE NOT NULL,
-  `est_exceptionnel` TINYINT(1) DEFAULT 0,
-  `notes` TEXT DEFAULT NULL,
-  PRIMARY KEY (`id_garde`),
-  KEY `id_service` (`id_service`),
-  CONSTRAINT `garde_ibfk_1` FOREIGN KEY (`id_service`) REFERENCES `service` (`id_service`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- ------------------------------------------------------------
--- sources d'articles (flux RSS, réseaux sociaux...)
--- ------------------------------------------------------------
-CREATE TABLE `sources_articles` (
-  `id_source` INT(11) NOT NULL AUTO_INCREMENT,
-  `nom_source` VARCHAR(150) NOT NULL,
-  `type_source` ENUM('rss','reseau_social') NOT NULL DEFAULT 'rss',
-  `url_flux` VARCHAR(500) NOT NULL,
-  `identifiant_page` VARCHAR(150) DEFAULT NULL,
-  `url_instance_bridge` VARCHAR(255) DEFAULT NULL,
-  `actif` TINYINT(1) NOT NULL DEFAULT 1,
-  `date_ajout` DATETIME DEFAULT current_timestamp(),
-  PRIMARY KEY (`id_source`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- ------------------------------------------------------------
--- articles
--- ------------------------------------------------------------
 CREATE TABLE `article` (
-  `id_article` INT(11) NOT NULL AUTO_INCREMENT,
-  `titre` VARCHAR(255) NOT NULL,
-  `contenu` TEXT NOT NULL,
-  `lien_source` VARCHAR(500) DEFAULT NULL,
-  `id_auteur` INT(11) DEFAULT NULL,
-  `id_source` INT(11) DEFAULT NULL,
-  `statut` ENUM('brouillon','publie','archive') NOT NULL DEFAULT 'brouillon',
-  `date_publication` TIMESTAMP NOT NULL DEFAULT current_timestamp(),
-  `derniere_modification` TIMESTAMP NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  PRIMARY KEY (`id_article`),
-  UNIQUE KEY `lien_source_unique` (`lien_source`),
-  KEY `id_auteur` (`id_auteur`),
-  KEY `id_source` (`id_source`),
-  CONSTRAINT `article_ibfk_1` FOREIGN KEY (`id_auteur`) REFERENCES `utilisateur` (`id_utilisateur`),
-  CONSTRAINT `article_ibfk_2` FOREIGN KEY (`id_source`) REFERENCES `sources_articles` (`id_source`) ON DELETE SET NULL
+  `id_article` int(11) NOT NULL,
+  `titre` varchar(255) NOT NULL,
+  `contenu` text NOT NULL,
+  `lien_source` varchar(500) DEFAULT NULL,
+  `id_auteur` int(11) DEFAULT NULL,
+  `id_source` int(11) DEFAULT NULL,
+  `statut` enum('brouillon','publie','archive') NOT NULL DEFAULT 'publie',
+  `date_publication` timestamp NOT NULL DEFAULT current_timestamp(),
+  `derniere_modification` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- ------------------------------------------------------------
--- logs
--- ------------------------------------------------------------
+--
+-- Déchargement des données de la table `article`
+--
+
+INSERT INTO `article` (`id_article`, `titre`, `contenu`, `lien_source`, `id_auteur`, `id_source`, `statut`, `date_publication`, `derniere_modification`) VALUES
+(1, 'SOAMIAVY 17 JOLAY 2026', '<div><img src=\"https://scontent-sea5-1.xx.fbcdn.net/v/t15.5256-10/750459364_1319369316602565_812508501711479115_n.jpg?stp=dst-jpg_p565x565_tt6&_nc_cat=107&ccb=1-7&_nc_sid=3a9e82&_nc_ohc=R7jI9N7zruYQ7kNvwE8mafg&_nc_oc=AdrqqnYqqGtax6pT0GZn55aoekXxKnub4KR4L7G_njy82-kfTnGq-kP3TmA6cKH6gJw&_nc_zt=23&_nc_ht=scontent-sea5-1.xx&_nc_gid=kc4LqY0hjlBier-xvkJ80g&_nc_ss=7b289&oh=00_AQBGfIrooquX0g9dcUer02UvEwYix1ABJKgTSD1NvtHXIg&oe=6A5FC6F6\" style=\"width: 100%;\" /><div>SOAMIAVY 17 JOLAY 2026</div></div>', 'https://m.facebook.com/televizionamalagasy/videos/2211774073009750/', NULL, 2, 'publie', '2026-07-17 02:02:15', '2026-07-17 07:57:59'),
+(2, 'VAOVAO AN-TSARY 19H30 - 16 JOLAY 2026', '<div><img src=\"https://scontent-sea5-1.xx.fbcdn.net/v/t15.5256-10/749952836_1010470611777475_7956773578778809967_n.jpg?stp=dst-jpg_p565x565_tt6&_nc_cat=108&ccb=1-7&_nc_sid=3a9e82&_nc_ohc=8sxdB71ifscQ7kNvwELfp-k&_nc_oc=AdqcZ6JXn7TgiDXUUKoUoWHhVM_36MHwwDe3WH4fz84EfkAS0_GxuJvpAD8tpoOdPXQ&_nc_zt=23&_nc_ht=scontent-sea5-1.xx&_nc_gid=kc4LqY0hjlBier-xvkJ80g&_nc_ss=7b289&oh=00_AQBo4SrlMM8Jas9PmNVg2WHpuUqcRp4ayj1n9M-fatAb0A&oe=6A5FAE87\" style=\"width: 100%;\" /><div>VAOVAO AN-TSARY 19H30 - 16 JOLAY 2026</div></div>', 'https://m.facebook.com/televizionamalagasy/videos/2125075735099728/', NULL, 2, 'publie', '2026-07-16 15:29:58', '2026-07-17 07:57:59'),
+(3, 'RUSSAMADA - 16 JUILLET 2026', '<div><img src=\"https://scontent-sea1-1.xx.fbcdn.net/v/t15.5256-10/748978317_1034402165906769_7388227845723774352_n.jpg?stp=dst-jpg_p565x565_tt6&_nc_cat=101&ccb=1-7&_nc_sid=3a9e82&_nc_ohc=kHOOzJYnNKkQ7kNvwFr73mJ&_nc_oc=AdpEk1XeR45bmX6nPbOcSxkqC0gsqK3A2zkK4qKvjdc9ZK-m_kyAxBJH8kWA_YRJYjc&_nc_zt=23&_nc_ht=scontent-sea1-1.xx&_nc_gid=kc4LqY0hjlBier-xvkJ80g&_nc_ss=7b289&oh=00_AQDMcmsh5Ezs3KF0eW3v9YFaVDtd-a816MYEeh1A9QB-XA&oe=6A5FAED3\" style=\"width: 100%;\" /><div>RUSSAMADA - 16 JUILLET 2026</div></div>', 'https://m.facebook.com/televizionamalagasy/videos/1058150207111344/', NULL, 2, 'publie', '2026-07-16 15:00:44', '2026-07-17 07:57:59'),
+(4, 'KAROKA SY KETRIKA  16 JOLAY 2026', '<div><img src=\"https://scontent-sea5-1.xx.fbcdn.net/v/t15.5256-10/743876838_1072238651863398_2902852999856386320_n.jpg?stp=dst-jpg_p565x565_tt6&_nc_cat=105&ccb=1-7&_nc_sid=3a9e82&_nc_ohc=kTi9DgsZFvoQ7kNvwFEzcrW&_nc_oc=Adr8FigsRY5GTxMl0XiMrm4mhgCOdiwB7u5R-9wYaR7xA2Lv9C82RqKM9DBgV_CXlX4&_nc_zt=23&_nc_ht=scontent-sea5-1.xx&_nc_gid=kc4LqY0hjlBier-xvkJ80g&_nc_ss=7b289&oh=00_AQBuL6JscKm8RpKzVmLRGZPkoGWqOHdl-kfQ1FipfwBh0w&oe=6A5FBE82\" style=\"width: 100%;\" /><div>KAROKA SY KETRIKA  16 JOLAY 2026</div></div>', 'https://m.facebook.com/televizionamalagasy/videos/3453727878142731/', NULL, 2, 'publie', '2026-07-16 14:00:12', '2026-07-17 07:57:59'),
+(5, 'VAOVAO AN-TSARY 1 ORA ATOANDRO', '<div><img src=\"https://scontent-sea5-1.xx.fbcdn.net/v/t15.5256-10/730040200_1773590923811081_995320107852927954_n.jpg?stp=dst-jpg_p565x565_tt6&_nc_cat=105&ccb=1-7&_nc_sid=3a9e82&_nc_ohc=1iBSFydzVlYQ7kNvwEJCgY3&_nc_oc=AdofJAElrtf6Er-TJM7DsB64PyaVBOHL5Om-QQxEE63bzrIiBpi0C6ajju1A9XP3nrE&_nc_zt=23&_nc_ht=scontent-sea5-1.xx&_nc_gid=kc4LqY0hjlBier-xvkJ80g&_nc_ss=7b289&oh=00_AQAgIddRsFn5j1OUou4HwotKlHeDUc11FyZ60oYCpz_yhA&oe=6A5FA045\" style=\"width: 100%;\" /><div>VAOVAO AN-TSARY 1 ORA ATOANDRO</div></div>', 'https://m.facebook.com/televizionamalagasy/videos/1016811340944581/', NULL, 2, 'publie', '2026-07-16 08:59:34', '2026-07-17 07:57:59');
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `garde`
+--
+
+CREATE TABLE `garde` (
+  `id_garde` int(11) NOT NULL,
+  `id_service` int(11) NOT NULL,
+  `date_debut` date NOT NULL,
+  `date_fin` date NOT NULL,
+  `est_exceptionnel` tinyint(1) DEFAULT 0,
+  `notes` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Déchargement des données de la table `garde`
+--
+
+INSERT INTO `garde` (`id_garde`, `id_service`, `date_debut`, `date_fin`, `est_exceptionnel`, `notes`) VALUES
+(1, 5, '2026-01-03', '2026-01-10', 0, NULL),
+(2, 6, '2026-01-10', '2026-01-17', 0, NULL),
+(3, 3, '2026-01-17', '2026-01-24', 0, NULL),
+(4, 2, '2026-01-24', '2026-01-31', 0, NULL),
+(5, 8, '2026-01-31', '2026-02-07', 0, NULL),
+(6, 1, '2026-02-07', '2026-02-14', 0, NULL),
+(7, 4, '2026-02-14', '2026-02-21', 0, NULL),
+(8, 7, '2026-02-21', '2026-02-28', 0, NULL),
+(9, 5, '2026-02-28', '2026-03-07', 0, NULL),
+(10, 6, '2026-03-07', '2026-03-14', 0, NULL),
+(11, 3, '2026-03-14', '2026-03-21', 0, NULL),
+(12, 2, '2026-03-21', '2026-03-28', 0, NULL),
+(13, 8, '2026-03-28', '2026-04-04', 0, NULL),
+(14, 1, '2026-04-04', '2026-04-11', 0, NULL),
+(15, 4, '2026-04-11', '2026-04-18', 0, NULL),
+(16, 7, '2026-04-18', '2026-04-25', 0, NULL),
+(17, 5, '2026-04-25', '2026-05-02', 0, NULL),
+(18, 6, '2026-05-02', '2026-05-09', 0, NULL),
+(19, 3, '2026-05-09', '2026-05-16', 0, NULL),
+(20, 2, '2026-05-16', '2026-05-23', 0, NULL),
+(21, 8, '2026-05-23', '2026-05-30', 0, NULL),
+(22, 1, '2026-05-30', '2026-06-06', 0, NULL),
+(23, 4, '2026-06-06', '2026-06-13', 0, NULL),
+(24, 7, '2026-06-13', '2026-06-20', 0, NULL),
+(25, 5, '2026-06-20', '2026-06-27', 0, NULL),
+(26, 6, '2026-06-27', '2026-07-04', 0, NULL),
+(27, 3, '2026-07-04', '2026-07-11', 0, NULL),
+(28, 2, '2026-07-11', '2026-07-18', 0, NULL),
+(29, 8, '2026-07-18', '2026-07-25', 0, NULL),
+(30, 1, '2026-07-25', '2026-08-01', 0, NULL),
+(31, 4, '2026-08-01', '2026-08-08', 0, NULL),
+(32, 7, '2026-08-08', '2026-08-15', 0, NULL),
+(33, 5, '2026-08-15', '2026-08-22', 0, NULL),
+(34, 6, '2026-08-22', '2026-08-29', 0, NULL),
+(35, 3, '2026-08-29', '2026-09-05', 0, NULL),
+(36, 2, '2026-09-05', '2026-09-12', 0, NULL),
+(37, 8, '2026-09-12', '2026-09-19', 0, NULL),
+(38, 1, '2026-09-19', '2026-09-26', 0, NULL),
+(39, 4, '2026-09-26', '2026-10-03', 0, NULL),
+(40, 7, '2026-10-03', '2026-10-10', 0, NULL),
+(41, 5, '2026-10-10', '2026-10-17', 0, NULL),
+(42, 6, '2026-10-17', '2026-10-24', 0, NULL),
+(43, 3, '2026-10-24', '2026-10-31', 0, NULL),
+(44, 2, '2026-10-31', '2026-11-07', 0, NULL),
+(45, 8, '2026-11-07', '2026-11-14', 0, NULL),
+(46, 1, '2026-11-14', '2026-11-21', 0, NULL),
+(47, 4, '2026-11-21', '2026-11-28', 0, NULL),
+(48, 7, '2026-11-28', '2026-12-05', 0, NULL),
+(49, 5, '2026-12-05', '2026-12-12', 0, NULL),
+(50, 6, '2026-12-12', '2026-12-19', 0, NULL),
+(51, 3, '2026-12-19', '2026-12-26', 0, NULL),
+(52, 2, '2026-12-26', '2027-01-02', 0, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `log`
+--
+
 CREATE TABLE `log` (
-  `id_log` INT(11) NOT NULL AUTO_INCREMENT,
-  `type_log` VARCHAR(50) NOT NULL,
-  `message` TEXT NOT NULL,
-  `id_utilisateur` INT(11) DEFAULT NULL,
-  `date_log` TIMESTAMP NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id_log`),
-  KEY `id_utilisateur` (`id_utilisateur`),
-  CONSTRAINT `log_ibfk_1` FOREIGN KEY (`id_utilisateur`) REFERENCES `utilisateur` (`id_utilisateur`)
+  `id_log` int(11) NOT NULL,
+  `type_log` varchar(50) NOT NULL,
+  `message` text NOT NULL,
+  `date_log` timestamp NOT NULL DEFAULT current_timestamp(),
+  `id_utilisateur` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `quartier`
+--
+
+CREATE TABLE `quartier` (
+  `id_quartier` int(11) NOT NULL,
+  `nom_quartier` varchar(100) NOT NULL,
+  `latitude` decimal(10,7) DEFAULT NULL,
+  `longitude` decimal(10,7) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Déchargement des données de la table `quartier`
+--
+
+INSERT INTO `quartier` (`id_quartier`, `nom_quartier`, `latitude`, `longitude`) VALUES
+(1, 'Place Kabary', NULL, NULL),
+(2, 'Avenir', NULL, NULL),
+(3, 'SCAMA', NULL, NULL),
+(4, 'Lazaret Nord', NULL, NULL),
+(5, 'Lazaret Sud', NULL, NULL),
+(6, 'Grand Pavois', NULL, NULL),
+(7, 'Tanambao V', NULL, NULL),
+(8, 'Ambalavola', NULL, NULL),
+(9, 'Soafeno', NULL, NULL),
+(10, 'Morafeno', NULL, NULL),
+(11, 'Mahatsara', NULL, NULL),
+(12, 'Cité Ouvrière', NULL, NULL),
+(13, 'Tsaramandroso', NULL, NULL),
+(14, 'Bazar Kely', NULL, NULL),
+(15, 'Manongalaza', NULL, NULL),
+(16, 'Tanambao Nord', NULL, NULL),
+(17, 'Tanambao Sud', NULL, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `role`
+--
+
+CREATE TABLE `role` (
+  `id_role` int(11) NOT NULL,
+  `nom_role` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Déchargement des données de la table `role`
+--
+
+INSERT INTO `role` (`id_role`, `nom_role`) VALUES
+(3, 'Administrateur'),
+(2, 'Redacteur'),
+(1, 'Visiteur');
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `service`
+--
+
+CREATE TABLE `service` (
+  `id_service` int(11) NOT NULL,
+  `libelle` varchar(255) NOT NULL,
+  `telephone` varchar(50) NOT NULL,
+  `adresse` varchar(255) NOT NULL,
+  `latitude` decimal(10,7) DEFAULT NULL,
+  `longitude` decimal(10,7) DEFAULT NULL,
+  `id_quartier` int(11) NOT NULL,
+  `id_type` int(11) NOT NULL,
+  `actif` tinyint(1) NOT NULL DEFAULT 1,
+  `description` text DEFAULT NULL,
+  `date_creation` timestamp NOT NULL DEFAULT current_timestamp(),
+  `date_modification` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Déchargement des données de la table `service`
+--
+
+INSERT INTO `service` (`id_service`, `libelle`, `telephone`, `adresse`, `latitude`, `longitude`, `id_quartier`, `id_type`, `actif`, `description`, `date_creation`, `date_modification`) VALUES
+(1, 'Pharmacie Issa', '032 03 250 23', 'Située a cote de BOA Tanabao Sud', NULL, NULL, 3, 1, 1, 'Située a cote de BOA Tanabao Sud', '2026-07-18 09:19:12', '2026-07-18 09:39:44'),
+(2, 'Pharmacie Mahasoa', '000 00 000 00', 'Rue la pirotechnique Grand Pavois', NULL, NULL, 6, 1, 1, NULL, '2026-07-18 09:19:12', '2026-07-18 09:39:44'),
+(3, 'Pharmacie Mora', '032 78 826 04', 'Place Kabary', NULL, NULL, 1, 1, 1, NULL, '2026-07-18 09:19:12', '2026-07-18 09:39:44'),
+(4, 'Pharmacie Esperance', '032 44 116 80', 'Place Kabary', NULL, NULL, 1, 1, 1, NULL, '2026-07-18 09:19:12', '2026-07-18 09:39:44'),
+(5, 'Pharmacie Henintsoa', '000 00 000 00', 'Rue Justin Bezara', NULL, NULL, 7, 1, 1, NULL, '2026-07-18 09:19:12', '2026-07-18 09:39:44'),
+(6, 'Pharmacie Avenir', '000 00 000 00', '32 Rue Lafayette', NULL, NULL, 2, 1, 1, NULL, '2026-07-18 09:19:12', '2026-07-18 09:39:44'),
+(7, 'Pharmacie Olga', '000 00 000 00', 'Quartier Lazaret', NULL, NULL, 4, 1, 1, NULL, '2026-07-18 09:19:12', '2026-07-18 09:39:44'),
+(8, 'Pharmacie Mahavavy', '000 00 000 00', 'Quartier Tanambao Nord', NULL, NULL, 16, 1, 1, NULL, '2026-07-18 09:19:12', '2026-07-18 09:39:44'),
+(9, 'Pompier Antsiranana', '032 63 505 56', 'Quartier Lazaret', NULL, NULL, 4, 2, 1, NULL, '2026-07-18 09:19:12', '2026-07-18 09:39:44'),
+(10, 'Ambulance Homi', '032 84 794 64', 'Hôpital Militaire', NULL, NULL, 4, 4, 1, NULL, '2026-07-18 09:19:12', '2026-07-18 09:39:44'),
+(11, 'Ambulance Hopitale BE', '032 40 794 15', 'Centre Ville', NULL, NULL, 1, 4, 1, NULL, '2026-07-18 09:19:12', '2026-07-18 09:39:44'),
+(12, 'Ambulance Policlinique', '034 49 110 11', 'Centre Ville', NULL, NULL, 1, 4, 1, NULL, '2026-07-18 09:19:12', '2026-07-18 09:39:44'),
+(13, 'Ambulance CU/DS', '032 62 360 53', 'Centre Ville', NULL, NULL, 1, 4, 1, NULL, '2026-07-18 09:19:12', '2026-07-18 09:39:44'),
+(14, 'FIP', '034 05 998 60', 'Place Kabary', NULL, NULL, 1, 3, 1, NULL, '2026-07-18 09:19:12', '2026-07-18 09:39:44'),
+(15, 'Police Manogalaza', '034 05 440 66', 'Quartier Manongalaza', NULL, NULL, 15, 3, 1, NULL, '2026-07-18 09:19:12', '2026-07-18 09:39:44'),
+(16, 'Police Centrale', '034 05 507 14', 'Centre Ville', NULL, NULL, 1, 3, 1, NULL, '2026-07-18 09:19:12', '2026-07-18 09:39:44'),
+(17, 'Police Tanambao', '034 05 440 66', 'Tanambao Sud', NULL, NULL, 17, 3, 1, NULL, '2026-07-18 09:19:12', '2026-07-18 09:39:44');
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `sources_articles`
+--
+
+CREATE TABLE `sources_articles` (
+  `id_source` int(11) NOT NULL,
+  `nom_source` varchar(150) NOT NULL,
+  `type_source` enum('rss','reseau_social') NOT NULL DEFAULT 'rss',
+  `url_flux` varchar(500) NOT NULL,
+  `identifiant_page` varchar(150) DEFAULT NULL,
+  `url_instance_bridge` varchar(255) DEFAULT NULL,
+  `actif` tinyint(1) NOT NULL DEFAULT 1,
+  `date_ajout` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Déchargement des données de la table `sources_articles`
+--
+
+INSERT INTO `sources_articles` (`id_source`, `nom_source`, `type_source`, `url_flux`, `identifiant_page`, `url_instance_bridge`, `actif`, `date_ajout`) VALUES
+(2, 'TVM - Télévision Malagasy', 'rss', 'https://rss.app/feeds/YWDnoHaTjFT5BLvE.xml', NULL, NULL, 1, '2026-07-17 10:51:44');
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `type_service`
+--
+
+CREATE TABLE `type_service` (
+  `id_type` int(11) NOT NULL,
+  `nom_type` varchar(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Déchargement des données de la table `type_service`
+--
+
+INSERT INTO `type_service` (`id_type`, `nom_type`) VALUES
+(3, 'Force de l\'ordre'),
+(4, 'Hôpital'),
+(1, 'Pharmacie'),
+(2, 'Pompier');
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `type_vehicule`
+--
+
+CREATE TABLE `type_vehicule` (
+  `id_type_vehicule` int(11) NOT NULL,
+  `nom_type` varchar(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Déchargement des données de la table `type_vehicule`
+--
+
+INSERT INTO `type_vehicule` (`id_type_vehicule`, `nom_type`) VALUES
+(1, 'Ambulance'),
+(4, 'Camion'),
+(3, 'Fourgon'),
+(2, 'Véhicule de livraison');
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `utilisateur`
+--
+
+CREATE TABLE `utilisateur` (
+  `id_utilisateur` int(11) NOT NULL,
+  `nom` varchar(100) NOT NULL,
+  `prenom` varchar(100) NOT NULL,
+  `date_naissance` date DEFAULT NULL,
+  `id_quartier` int(11) DEFAULT NULL,
+  `email` varchar(255) NOT NULL,
+  `mot_de_passe` varchar(255) NOT NULL,
+  `id_role` int(11) NOT NULL,
+  `actif` tinyint(1) NOT NULL DEFAULT 1,
+  `date_creation` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Déchargement des données de la table `utilisateur`
+--
+
+INSERT INTO `utilisateur` (`id_utilisateur`, `nom`, `prenom`, `date_naissance`, `id_quartier`, `email`, `mot_de_passe`, `id_role`, `actif`, `date_creation`) VALUES
+(5, 'Hamzah', 'Nasser', '2005-07-15', 5, 'nasserhazmah@gmail.com', '15e2b0d3c33891ebb0f1ef609ec419420c20e320ce94c65fbc8c3312448eb225', 3, 1, '2026-07-09 12:11:48'),
+(9, 'Hamzah', 'Misizara', '2005-07-12', 5, 'hamzah@gmail.com', '15e2b0d3c33891ebb0f1ef609ec419420c20e320ce94c65fbc8c3312448eb225', 1, 1, '2026-07-18 10:29:26'),
+(10, 'Hamzah', 'Bouchirany', '2005-07-12', 5, 'bouchiranymisizarahamzah@gmail.com', 'f25ec99adf606b46ff8aabcfa7891409f17399bf727047aa556432c85b66a588', 1, 1, '2026-07-18 18:28:08');
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `vehicule`
+--
+
+CREATE TABLE `vehicule` (
+  `id_vehicule` int(11) NOT NULL,
+  `id_service` int(11) NOT NULL,
+  `id_type_vehicule` int(11) NOT NULL,
+  `nom` varchar(255) DEFAULT NULL,
+  `telephone` varchar(50) DEFAULT NULL,
+  `actif` tinyint(1) NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Déchargement des données de la table `vehicule`
+--
+
+INSERT INTO `vehicule` (`id_vehicule`, `id_service`, `id_type_vehicule`, `nom`, `telephone`, `actif`) VALUES
+(1, 10, 1, 'Ambulance Homi', NULL, 1),
+(2, 11, 1, 'Ambulance Hopitale BE', NULL, 1),
+(3, 12, 1, 'Ambulance Policlinique', NULL, 1),
+(4, 13, 1, 'Ambulance CU/DS', NULL, 1);
+
+--
+-- Index pour les tables déchargées
+--
+
+--
+-- Index pour la table `article`
+--
+ALTER TABLE `article`
+  ADD PRIMARY KEY (`id_article`),
+  ADD UNIQUE KEY `lien_source_unique` (`lien_source`),
+  ADD KEY `id_auteur` (`id_auteur`),
+  ADD KEY `articles_ibfk_2` (`id_source`);
+
+--
+-- Index pour la table `garde`
+--
+ALTER TABLE `garde`
+  ADD PRIMARY KEY (`id_garde`),
+  ADD KEY `id_service` (`id_service`);
+
+--
+-- Index pour la table `log`
+--
+ALTER TABLE `log`
+  ADD PRIMARY KEY (`id_log`),
+  ADD KEY `id_utilisateur` (`id_utilisateur`);
+
+--
+-- Index pour la table `quartier`
+--
+ALTER TABLE `quartier`
+  ADD PRIMARY KEY (`id_quartier`),
+  ADD UNIQUE KEY `nom_quartier` (`nom_quartier`);
+
+--
+-- Index pour la table `role`
+--
+ALTER TABLE `role`
+  ADD PRIMARY KEY (`id_role`),
+  ADD UNIQUE KEY `nom_role` (`nom_role`);
+
+--
+-- Index pour la table `service`
+--
+ALTER TABLE `service`
+  ADD PRIMARY KEY (`id_service`),
+  ADD KEY `id_quartier` (`id_quartier`),
+  ADD KEY `id_type` (`id_type`);
+
+--
+-- Index pour la table `sources_articles`
+--
+ALTER TABLE `sources_articles`
+  ADD PRIMARY KEY (`id_source`);
+
+--
+-- Index pour la table `type_service`
+--
+ALTER TABLE `type_service`
+  ADD PRIMARY KEY (`id_type`),
+  ADD UNIQUE KEY `nom_type` (`nom_type`);
+
+--
+-- Index pour la table `type_vehicule`
+--
+ALTER TABLE `type_vehicule`
+  ADD PRIMARY KEY (`id_type_vehicule`),
+  ADD UNIQUE KEY `nom_type` (`nom_type`);
+
+--
+-- Index pour la table `utilisateur`
+--
+ALTER TABLE `utilisateur`
+  ADD PRIMARY KEY (`id_utilisateur`),
+  ADD UNIQUE KEY `email` (`email`),
+  ADD KEY `id_role` (`id_role`),
+  ADD KEY `id_quartier` (`id_quartier`);
+
+--
+-- Index pour la table `vehicule`
+--
+ALTER TABLE `vehicule`
+  ADD PRIMARY KEY (`id_vehicule`),
+  ADD KEY `id_service` (`id_service`),
+  ADD KEY `id_type_vehicule` (`id_type_vehicule`);
+
+--
+-- AUTO_INCREMENT pour les tables déchargées
+--
+
+--
+-- AUTO_INCREMENT pour la table `article`
+--
+ALTER TABLE `article`
+  MODIFY `id_article` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT pour la table `garde`
+--
+ALTER TABLE `garde`
+  MODIFY `id_garde` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
+
+--
+-- AUTO_INCREMENT pour la table `log`
+--
+ALTER TABLE `log`
+  MODIFY `id_log` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT pour la table `quartier`
+--
+ALTER TABLE `quartier`
+  MODIFY `id_quartier` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+
+--
+-- AUTO_INCREMENT pour la table `role`
+--
+ALTER TABLE `role`
+  MODIFY `id_role` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT pour la table `service`
+--
+ALTER TABLE `service`
+  MODIFY `id_service` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+
+--
+-- AUTO_INCREMENT pour la table `sources_articles`
+--
+ALTER TABLE `sources_articles`
+  MODIFY `id_source` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT pour la table `type_service`
+--
+ALTER TABLE `type_service`
+  MODIFY `id_type` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT pour la table `type_vehicule`
+--
+ALTER TABLE `type_vehicule`
+  MODIFY `id_type_vehicule` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT pour la table `utilisateur`
+--
+ALTER TABLE `utilisateur`
+  MODIFY `id_utilisateur` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT pour la table `vehicule`
+--
+ALTER TABLE `vehicule`
+  MODIFY `id_vehicule` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
+-- Contraintes pour les tables déchargées
+--
+
+--
+-- Contraintes pour la table `article`
+--
+ALTER TABLE `article`
+  ADD CONSTRAINT `article_ibfk_1` FOREIGN KEY (`id_auteur`) REFERENCES `utilisateur` (`id_utilisateur`),
+  ADD CONSTRAINT `article_ibfk_2` FOREIGN KEY (`id_source`) REFERENCES `sources_articles` (`id_source`) ON DELETE SET NULL;
+
+--
+-- Contraintes pour la table `garde`
+--
+ALTER TABLE `garde`
+  ADD CONSTRAINT `garde_ibfk_1` FOREIGN KEY (`id_service`) REFERENCES `service` (`id_service`) ON DELETE CASCADE;
+
+--
+-- Contraintes pour la table `log`
+--
+ALTER TABLE `log`
+  ADD CONSTRAINT `log_ibfk_1` FOREIGN KEY (`id_utilisateur`) REFERENCES `utilisateur` (`id_utilisateur`);
+
+--
+-- Contraintes pour la table `service`
+--
+ALTER TABLE `service`
+  ADD CONSTRAINT `service_ibfk_1` FOREIGN KEY (`id_quartier`) REFERENCES `quartier` (`id_quartier`),
+  ADD CONSTRAINT `service_ibfk_2` FOREIGN KEY (`id_type`) REFERENCES `type_service` (`id_type`);
+
+--
+-- Contraintes pour la table `utilisateur`
+--
+ALTER TABLE `utilisateur`
+  ADD CONSTRAINT `utilisateur_ibfk_1` FOREIGN KEY (`id_role`) REFERENCES `role` (`id_role`),
+  ADD CONSTRAINT `utilisateur_ibfk_2` FOREIGN KEY (`id_quartier`) REFERENCES `quartier` (`id_quartier`);
+
+--
+-- Contraintes pour la table `vehicule`
+--
+ALTER TABLE `vehicule`
+  ADD CONSTRAINT `vehicule_ibfk_1` FOREIGN KEY (`id_service`) REFERENCES `service` (`id_service`) ON DELETE CASCADE,
+  ADD CONSTRAINT `vehicule_ibfk_2` FOREIGN KEY (`id_type_vehicule`) REFERENCES `type_vehicule` (`id_type_vehicule`);
 COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
