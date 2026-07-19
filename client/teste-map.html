@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pharmacies — Antsiranana</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1c231e;
+    --paper:#f6f4ee;
+    --forest:#1b4332;
+    --forest-dk:#0f2921;
+    --sage:#e7efe6;
+    --sage-line:#c9d8c6;
+    --ylang:#e8b944;
+    --ylang-dk:#a97e1f;
+    --closed:#b23b3b;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);font-family:'Inter',sans-serif;height:100%;}
+  #app{display:grid;grid-template-columns:380px 1fr;height:100vh;}
+
+  /* ---- Sidebar ---- */
+  #sidebar{
+    background:var(--paper);
+    border-right:1px solid var(--sage-line);
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+  }
+  header{
+    padding:22px 22px 16px 22px;
+    border-bottom:1px solid var(--sage-line);
+  }
+  .eyebrow{
+    font-family:'Space Mono',monospace;
+    font-size:11px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--forest);
+    opacity:.7;
+  }
+  h1{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:26px;
+    margin:4px 0 2px 0;
+    color:var(--forest-dk);
+    letter-spacing:-0.01em;
+  }
+  .sub{
+    font-size:13px;
+    color:#5b6b5e;
+    margin:0;
+  }
+
+  #list{
+    overflow-y:auto;
+    flex:1;
+    padding:10px 12px 24px 12px;
+  }
+  .card{
+    background:#fff;
+    border:1px solid var(--sage-line);
+    border-radius:var(--radius);
+    padding:14px 16px;
+    margin-bottom:10px;
+    cursor:pointer;
+    transition:border-color .15s ease, transform .12s ease, box-shadow .15s ease;
+    position:relative;
+  }
+  .card:hover{
+    border-color:var(--forest);
+    transform:translateY(-1px);
+    box-shadow:0 4px 14px rgba(27,67,50,0.08);
+  }
+  .card.active{
+    border-color:var(--forest);
+    background:var(--sage);
+    box-shadow:0 4px 14px rgba(27,67,50,0.12);
+  }
+  .card-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:8px;
+  }
+  .card-name{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:16px;
+    color:var(--forest-dk);
+    line-height:1.25;
+  }
+  .badge{
+    font-family:'Space Mono',monospace;
+    font-size:10px;
+    letter-spacing:.05em;
+    text-transform:uppercase;
+    padding:3px 7px;
+    border-radius:20px;
+    white-space:nowrap;
+    flex-shrink:0;
+  }
+  .badge.open{
+    background:var(--ylang);
+    color:var(--forest-dk);
+  }
+  .badge.open .dot{
+    display:inline-block;
+    width:6px;height:6px;
+    border-radius:50%;
+    background:var(--forest-dk);
+    margin-right:5px;
+    animation:pulse 1.8s infinite;
+  }
+  @keyframes pulse{
+    0%{opacity:1;}
+    50%{opacity:.35;}
+    100%{opacity:1;}
+  }
+  .badge.limited{
+    background:#eee2c9;
+    color:var(--ylang-dk);
+  }
+  .card-address{
+    font-size:12.5px;
+    color:#5b6b5e;
+    margin-top:4px;
+  }
+  .card-meta{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-top:9px;
+    font-family:'Space Mono',monospace;
+    font-size:11.5px;
+    color:var(--forest);
+  }
+  .rating{
+    color:var(--ylang-dk);
+  }
+  .no-rating{color:#9aa79b;}
+  .card-phone{
+    margin-top:6px;
+    font-family:'Space Mono',monospace;
+    font-size:12px;
+    color:var(--forest-dk);
+  }
+
+  /* ---- Map ---- */
+  #map{height:100%;width:100%;}
+  .leaflet-popup-content-wrapper{
+    border-radius:10px;
+    font-family:'Inter',sans-serif;
+  }
+  .popup-title{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:15px;
+    color:var(--forest-dk);
+    margin-bottom:2px;
+  }
+  .popup-address{font-size:12px;color:#5b6b5e;}
+
+  ::-webkit-scrollbar{width:8px;}
+  ::-webkit-scrollbar-thumb{background:var(--sage-line);border-radius:8px;}
+
+  @media (max-width:760px){
+    #app{grid-template-columns:1fr;grid-template-rows:auto 1fr;}
+    #sidebar{border-right:none;border-bottom:1px solid var(--sage-line);max-height:46vh;}
+    #map{min-height:54vh;}
+  }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div id="sidebar">
+    <header>
+      <div class="eyebrow">Antsiranana · Diego Suarez</div>
+      <h1>Trouver une pharmacie</h1>
+      <p class="sub">9 pharmacies référencées — sélectionnez-en une pour la localiser</p>
+    </header>
+    <div id="list"></div>
+  </div>
+  <div id="map"></div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const pharmacies = [
+  {
+    id: "scama",
+    name: "Pharmacie Scama 24/7",
+    address: "RN6, Antsiranana 201",
+    lat: -12.314915, lng: 49.2948905,
+    rating: 4.4, ratingCount: 9,
+    phone: "+261 32 03 250 23",
+    hours: "Ouvert 24h/24",
+    status: "open"
+  },
+  {
+    id: "chrr",
+    name: "Chrr Diana Pharmacy",
+    address: "P7JW+687, Antsiranana 201",
+    lat: -12.2694735, lng: 49.2957835,
+    rating: 3.0, ratingCount: 4,
+    phone: null,
+    hours: "Ouvert 24h/24",
+    status: "open"
+  },
+  {
+    id: "henintsoa",
+    name: "Pharmacie Henintsoa",
+    address: "Lot 201, Rue Justin Bezara",
+    lat: -12.2893923, lng: 49.2900051,
+    rating: 3.1, ratingCount: 8,
+    phone: "+261 34 06 480 98",
+    hours: "Horaires variables",
+    status: "unknown"
+  },
+  {
+    id: "avenir",
+    name: "Avenir Pharmacy",
+    address: "32 Rue Lafayette",
+    lat: -12.2813217, lng: 49.2914384,
+    rating: 4.0, ratingCount: 4,
+    phone: null,
+    hours: "Horaires variables",
+    status: "unknown"
+  },
+  {
+    id: "olga-mangin",
+    name: "Pharmacie OLGA — Mangin",
+    address: "2 Rue Mangin",
+    lat: -12.2697736, lng: 49.2936916,
+    rating: 5.0, ratingCount: 1,
+    phone: "+261 32 04 207 88",
+    hours: "Horaires variables",
+    status: "unknown"
+  },
+  {
+    id: "olga",
+    name: "Pharmacie Olga",
+    address: "1 Rue Commandant Marchand",
+    lat: -12.289297, lng: 49.2898094,
+    rating: null, ratingCount: null,
+    phone: "+261 20 82 219 72",
+    hours: "Horaires variables",
+    status: "unknown"
+  },
+  {
+    id: "mahavavy",
+    name: "Pharmacie Mahavavy",
+    address: "13 Av. Philibert Tsiranana",
+    lat: -12.2845539, lng: 49.2920665,
+    rating: null, ratingCount: null,
+    phone: null,
+    hours: "Horaires variables",
+    status: "unknown"
+  },
+  {
+    id: "mora",
+    name: "Pharmacie Mora",
+    address: "P7HR+5XW, Place Kabary",
+    lat: -12.2720125, lng: 49.2924531,
+    rating: null, ratingCount: null,
+    phone: null,
+    hours: "Horaires variables",
+    status: "unknown"
+  },
+  {
+    id: "issa",
+    name: "Pharmacie Issa",
+    address: "P76V+99R, Route de l'Ankarana",
+    lat: -12.2890107, lng: 49.2933992,
+    rating: 3.5, ratingCount: 4,
+    phone: "+261 20 82 227 15",
+    hours: "Lun–Ven 8h–18h30 · Fermé sam/dim",
+    status: "limited"
+  }
+];
+
+const map = L.map('map', { zoomControl: true }).setView([-12.284, 49.293], 14);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; OpenStreetMap contributors',
+  maxZoom: 19
+}).addTo(map);
+
+function pinIcon(status){
+  const color = status === 'open' ? '#e8b944' : (status === 'limited' ? '#b23b3b' : '#1b4332');
+  const svg = `<svg width="30" height="38" viewBox="0 0 30 38" xmlns="http://www.w3.org/2000/svg">
+    <path d="M15 0C6.7 0 0 6.7 0 15c0 10.5 15 23 15 23s15-12.5 15-23C30 6.7 23.3 0 15 0z" fill="${color}"/>
+    <circle cx="15" cy="15" r="6" fill="#f6f4ee"/>
+  </svg>`;
+  return L.divIcon({
+    html: svg,
+    className: '',
+    iconSize: [30,38],
+    iconAnchor: [15,38],
+    popupAnchor: [0,-34]
+  });
+}
+
+const markers = {};
+pharmacies.forEach(p => {
+  const marker = L.marker([p.lat, p.lng], { icon: pinIcon(p.status) }).addTo(map);
+  marker.bindPopup(`
+    <div class="popup-title">${p.name}</div>
+    <div class="popup-address">${p.address}</div>
+  `);
+  marker.on('click', () => selectPharmacy(p.id, false));
+  markers[p.id] = marker;
+});
+
+function statusBadge(p){
+  if(p.status === 'open') return `<span class="badge open"><span class="dot"></span>24/7</span>`;
+  if(p.status === 'limited') return `<span class="badge limited">Horaires limités</span>`;
+  return '';
+}
+
+function ratingHtml(p){
+  if(p.rating){
+    return `<span class="rating">★ ${p.rating.toFixed(1)}</span><span>· ${p.ratingCount} avis</span>`;
+  }
+  return `<span class="no-rating">Pas d'avis</span>`;
+}
+
+const listEl = document.getElementById('list');
+pharmacies.forEach(p => {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.id = 'card-' + p.id;
+  card.innerHTML = `
+    <div class="card-top">
+      <div class="card-name">${p.name}</div>
+      ${statusBadge(p)}
+    </div>
+    <div class="card-address">${p.address}</div>
+    <div class="card-meta">
+      ${ratingHtml(p)}
+    </div>
+    ${p.phone ? `<div class="card-phone">${p.phone}</div>` : ''}
+  `;
+  card.addEventListener('click', () => selectPharmacy(p.id, true));
+  listEl.appendChild(card);
+});
+
+let activeId = null;
+function selectPharmacy(id, flyMap){
+  if(activeId){
+    document.getElementById('card-' + activeId)?.classList.remove('active');
+  }
+  activeId = id;
+  const cardEl = document.getElementById('card-' + id);
+  cardEl?.classList.add('active');
+  cardEl?.scrollIntoView({ behavior:'smooth', block:'nearest' });
+
+  const p = pharmacies.find(x => x.id === id);
+  if(flyMap){
+    map.flyTo([p.lat, p.lng], 16, { duration: 0.8 });
+  }
+  markers[id].openPopup();
+}
+</script>
+</body>
+</html>

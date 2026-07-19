@@ -1,0 +1,286 @@
+:root {
+    --bg-light: #f8fafc;
+    --bg-white: #ffffff;
+    --blue-deep: #1e40af;
+    --blue-deep-dark: #1e3a8a;   
+    --red-emergency: #dc2626;
+    --text-dark: #1e293b;
+    --text-muted: #64748b;
+    --transition: all 0.3s ease;
+    --safe-area-inset-bottom: env(safe-area-inset-bottom, 0);
+}
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+html, body {
+    width: 100%;
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-light);
+    color: var(--text-dark);
+    line-height: 1.6;
+}
+h1, h2, h3 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+}
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+/* Header identique à la landing page */
+header {
+    padding: 1rem 0;
+    background: var(--bg-white);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.logo-placeholder {
+    width: 120px;
+    height: 45px;
+    background: linear-gradient(135deg, var(--blue-deep) 0%, #3b82f6 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    color: white;
+    font-size: 0.7rem;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition);
+    text-decoration: none;
+}
+.logo-placeholder:active {
+    transform: scale(0.95);
+}
+.nav-links {
+    display: none;
+}
+.nav-links a {
+    text-decoration: none;
+    color: var(--text-dark);
+    font-weight: 600;
+    transition: var(--transition);
+}
+.nav-links a:hover {
+    color: var(--blue-deep);
+}
+/* Zone de connexion, occupant le reste de l'écran comme un vrai "écran" du site */
+.auth-wrapper {
+    min-height: calc(100vh - 90px - 70px); /* header + bottom-nav */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 0;
+}
+.auth-container {
+    width: 100%;
+    max-width: 400px;
+}
+.auth-card {
+    background: var(--bg-white);
+    border-radius: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    padding: 2rem 1.75rem;
+}
+.auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+.auth-header h1 {
+    font-size: 1.8rem;
+    color: var(--blue-deep);
+    margin-bottom: 0.5rem;
+}
+.auth-header p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+.form-group {
+    margin-bottom: 1.5rem;
+}
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    font-size: 0.9rem;
+}
+input {
+    width: 100%;
+    padding: 0.85rem;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    transition: var(--transition);
+    background: var(--bg-white);
+    color: var(--text-dark);
+}
+input:focus {
+    outline: none;
+    border-color: var(--blue-deep);
+    box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+}
+input::placeholder {
+    color: var(--text-muted);
+}
+.error-message {
+    background: #fee2e2;
+    color: #991b1b;
+    padding: 0.75rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    border-left: 4px solid var(--red-emergency);
+}
+.btn {
+    width: 100%;
+    padding: 0.9rem;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition);
+}
+.btn-primary {
+    background: var(--blue-deep);
+    color: white;
+    margin-bottom: 1rem;
+}
+.btn-primary:hover {
+    background: var(--blue-deep-dark);
+}
+.btn-primary:active {
+    transform: scale(0.98);
+}
+.divider {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 1.5rem 0;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+.divider::before,
+.divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border-color);
+}
+.auth-footer {
+    text-align: center;
+    margin-top: 1.5rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+.auth-footer a {
+    color: var(--blue-deep);
+    text-decoration: none;
+    font-weight: 600;
+    transition: var(--transition);
+}
+.auth-footer a:hover {
+    color: var(--red-emergency);
+}
+.btn-secondary {
+    background: var(--bg-light);
+    color: var(--text-dark);
+}
+.btn-secondary:hover {
+    background: #e2e8f0;
+}
+.password-wrapper {
+    position: relative;
+}
+.password-wrapper input {
+    padding-right: 3rem;
+}
+.toggle-password {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: var(--transition);
+}
+.toggle-password:hover {
+    color: var(--blue-deep);
+}
+footer {
+    padding: 2rem 0;
+    text-align: center;
+    color: var(--text-muted);
+    border-top: 1px solid #e2e8f0;
+    margin-bottom: calc(80px + var(--safe-area-inset-bottom));
+    font-size: 0.85rem;
+}
+/* Bottom nav identique à la landing */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--bg-white);
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-around;
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+    z-index: 99;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.08);
+}
+.nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 0;
+    text-decoration: none;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    transition: var(--transition);
+    cursor: pointer;
+}
+.nav-item.active {
+    color: var(--blue-deep);
+}
+.nav-item-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.25rem;
+}
+@media (min-width: 768px) {
+    .nav-links {
+        display: flex;
+        gap: 1.5rem;
+    }
+    .bottom-nav {
+        display: none;
+    }
+    footer {
+        margin-bottom: 0;
+    }
+}
+@media (max-width: 600px) {
+    .auth-card {
+        padding: 1.5rem;
+    }
+    .auth-header h1 {
+        font-size: 1.5rem;
+    }
+}

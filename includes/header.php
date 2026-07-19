@@ -1,3 +1,4 @@
+<!-- header -->
 <?php
 require_once __DIR__ . '/session.php';
 $current_page = basename($_SERVER['PHP_SELF']);
@@ -13,23 +14,32 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
 <style>
     /* ==========================================================
-   HEADER — fond blanc, texte bleu
-   Fichier UNIQUE : ne pas dupliquer ce CSS ailleurs (pas de
-   <style> dans header.php, pas de copie dans un autre fichier).
+   HEADER — cohérent avec la landing page (index.php)
+   Fichier UNIQUE : ne pas dupliquer ce CSS ailleurs.
    ========================================================== */
 :root {
-    --header-bg: #ffffff;
-    --header-bg-scrolled: rgba(255, 255, 255, 0.96);
-    --color-primary: #1d4ed8;      /* bleu */
-    --color-primary-dark: #1e3a8a;
-    --color-text: #1d4ed8;         /* texte du header en bleu */
-    --color-text-muted: #3b5bdb;
-    --color-border: #eeeeee;
-    --color-danger: #e63946;
-    --color-danger-dark: #c1121f;
-    --header-height: 72px;
-    --mobile-breakpoint: 900px;    /* doit correspondre à MOBILE_BREAKPOINT en JS */
-    --transition-fast: 0.2s ease;
+    --bg-light: #f8fafc;
+    --bg-white: #ffffff;
+    --blue-deep: #1e40af;
+    --blue-deep-dark: #1e3a8a;
+    --red-emergency: #dc2626;
+    --text-dark: #1e293b;
+    --text-muted: #64748b;
+    --transition: all 0.3s ease;
+    --safe-area-inset-bottom: env(safe-area-inset-bottom, 0);
+
+    /* alias pour rester compatible avec le CSS existant du header */
+    --header-bg: var(--bg-white);
+    --header-bg-scrolled: var(--bg-white);
+    --header-height: 77px; /* ≈ padding 1rem + hauteur logo, comme la landing page */
+    --transition-fast: var(--transition);
+    --color-text: var(--text-dark);
+    --color-text-muted: var(--text-muted);
+    --color-primary: var(--blue-deep);
+    --color-primary-dark: var(--blue-deep-dark);
+    --color-danger: var(--red-emergency);
+    --color-danger-dark: #b91c1c;
+    --color-border: #e2e8f0;
 }
 
 * {
@@ -43,47 +53,55 @@ $current_page = basename($_SERVER['PHP_SELF']);
     padding: 0 24px;
 }
 
-/* ---------- Header ---------- */
+/* ---------- Header (identique à la landing page) ---------- */
 .site-header {
+    padding: 1rem 0;
+    background: var(--bg-white);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     position: sticky;
     top: 0;
     z-index: 1000;
-    background: var(--header-bg);
-    border-bottom: 1px solid transparent;
-    transition: background var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+    transition: var(--transition);
+}
+
+.site-header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .site-header.scrolled {
-    background: var(--header-bg-scrolled);
-    backdrop-filter: blur(8px);
-    border-bottom-color: var(--color-border);
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
 }
 
-.header-inner {
-    height: var(--header-height);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 24px;
-}
-
-/* ---------- Logo ---------- */
+/* ---------- Logo : même badge dégradé que la landing page ---------- */
 .logo-placeholder {
     display: flex;
     align-items: center;
-    gap: 10px;
-    font-size: 1.4rem;
-    font-weight: 800;
+    gap: 8px;
+    padding: 0.6rem 1rem;
+    min-width: 120px;
+    height: 45px;
+    background: linear-gradient(135deg, var(--blue-deep) 0%, #3b82f6 100%);
+    border: none;
+    border-radius: 8px;
+    color: #ffffff;
+    font-size: 0.85rem;
+    font-weight: 700;
     letter-spacing: 0.5px;
-    color: var(--color-text);
     text-decoration: none;
     white-space: nowrap;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.logo-placeholder:active {
+    transform: scale(0.95);
 }
 
 .logo-icon {
-    color: var(--color-primary);
-    font-size: 1.3rem;
+    color: #ffffff;
+    font-size: 1rem;
 }
 
 /* ---------- Bouton menu mobile ---------- */
@@ -128,16 +146,16 @@ $current_page = basename($_SERVER['PHP_SELF']);
     color: var(--color-text-muted);
     text-decoration: none;
     white-space: nowrap;
-    transition: background var(--transition-fast), color var(--transition-fast);
+    transition: var(--transition-fast);
 }
 
 #topNav .nav-links-scroll a:hover {
-    background: rgba(29, 78, 216, 0.08);
+    background: rgba(30, 64, 175, 0.08);
     color: var(--color-primary);
 }
 
 #topNav .nav-links-scroll a.active {
-    background: rgba(29, 78, 216, 0.1);
+    background: rgba(30, 64, 175, 0.1);
     color: var(--color-primary);
     font-weight: 600;
 }
@@ -147,7 +165,6 @@ $current_page = basename($_SERVER['PHP_SELF']);
     color: inherit;
 }
 
-/* Bouton "Faire un don" mis en avant, cohérent avec un CTA de landing page */
 .btn-donate {
     background: var(--color-primary);
     color: #ffffff !important;
@@ -178,7 +195,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
     background: var(--color-danger) !important;
     color: #ffffff !important;
     text-decoration: none;
-    transition: background var(--transition-fast), opacity var(--transition-fast);
+    transition: var(--transition-fast);
 }
 
 .btn-logout i {
@@ -196,9 +213,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
 }
 
 /* ==========================================================
-   RESPONSIVE — menu déroulant plein écran sur mobile
-   Le breakpoint (900px) doit rester identique à --mobile-breakpoint
-   et à MOBILE_BREAKPOINT dans le <script> de header.php
+   RESPONSIVE — le breakpoint (900px) doit rester identique
+   à MOBILE_BREAKPOINT dans le <script> plus bas
    ========================================================== */
 @media (max-width: 900px) {
     .mobile-menu-btn {
@@ -211,7 +227,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
         right: 0;
         width: min(320px, 85vw);
         height: calc(100dvh - var(--header-height));
-        background: var(--header-bg);
+        background: var(--bg-white);
         flex-direction: column;
         align-items: stretch;
         justify-content: flex-start;
@@ -239,6 +255,13 @@ $current_page = basename($_SERVER['PHP_SELF']);
         border-radius: 10px;
     }
 
+    /* Effet au tap, équivalent du :hover PC */
+    #topNav .nav-links-scroll a:active,
+    #topNav .nav-links-scroll a:focus {
+        background: rgba(30, 64, 175, 0.1);
+        color: var(--color-primary);
+    }
+
     .nav-actions {
         margin-left: 0;
         margin-top: 16px;
@@ -249,6 +272,12 @@ $current_page = basename($_SERVER['PHP_SELF']);
     .btn-logout {
         justify-content: center;
         width: 100%;
+    }
+
+    /* Effet au tap sur le bouton déconnexion */
+    .btn-logout:active {
+        background: var(--color-danger-dark) !important;
+        opacity: 0.9;
     }
 
     .nav-backdrop {
@@ -271,7 +300,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
 </style>
 
 <header class="site-header">
-    <div class="container header-inner">
+    <div class="container ">
         <a href="../home.php" class="logo-placeholder">
             <i class="fa-solid fa-truck-medical logo-icon"></i>
             URGENCES
@@ -293,12 +322,15 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 <a href="service-urgence.php" class="<?= $current_page === 'service-urgence' ? 'active' : '' ?>">
                     <i class="fa-solid fa-tower-broadcast"></i> Service d'urgence
                 </a>
+                <a href="../client/urgences-carte.php" class="<?= $current_page === 'urgences-carte' ? 'active' : '' ?>">
+                    <i class="fa-solid fa-tower-broadcast"></i> MAPE
+                </a>
                 <a href="faire-un-don.php" class="<?= $current_page === 'faire-un-don' ? 'active' : '' ?>">
                     <i class="fa-solid fa-hand-holding-dollar"></i> Faire un don
                 </a>
             </div>
             <div class="nav-actions">
-                <a href="logout.php" class="btn-logout">
+                <a href="/./logout.php" class="btn-logout">
                     <i class="fa-solid fa-user"></i> Déconnexion
                 </a>
             </div>
