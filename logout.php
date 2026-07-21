@@ -24,6 +24,6 @@ if (ini_get("session.use_cookies")) {
 session_destroy();
 
 // Rediriger vers la page d'accueil
-header("Location: index.php");
+header("Location: /Mini-projet/index.php");
 exit();
 ?>

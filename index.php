@@ -76,17 +76,12 @@ $category_icons = [
         <div class="container">
             <a href="index.php" class="logo-placeholder">URGENCES</a>
             <nav class="nav-links">
-                <?php if ($is_logged_in): ?>
-                    <div style="display: flex; gap: 1rem; align-items: center;">
-                        <a href="#" style="color: var(--blue-deep); font-weight: 600;">👤 <?php echo htmlspecialchars($_SESSION['user_prenom']); ?></a>
-                        <a href="logout.php" style="background: var(--red-emergency); color: white; padding: 0.6rem 1.2rem; border-radius: 8px; text-decoration: none; font-weight: 600;">Déconnexion</a>
-                    </div>
-                <?php else: ?>
+                
                     <div class="auth-buttons">
                         <a href="login.php" class="btn-login">Connexion</a>
                         <a href="register.php" class="btn-register">Inscription</a>
                     </div>
-                <?php endif; ?>
+                
             </nav>
         </div>
     </header>
@@ -173,29 +168,15 @@ $category_icons = [
             </div>
             <div>Accueil</div>
         </a>
-        <?php if ($is_logged_in): ?>
-            <a href="#" class="nav-item">
-                <div class="nav-item-icon">
-                    <i class="fa-solid fa-user"></i>
-                </div>
-                <div>Profil</div>
-            </a>
-            <a href="logout.php" class="nav-item">
-                <div class="nav-item-icon">
-                    <i class="fa-solid fa-door-closed"></i>
-                </div>
-                <div>Quitter</div>
-            </a>
-        <?php else: ?>
-            <a href="login.php" class="nav-item">
-                <div class="nav-item-icon"><i class="fa-solid fa-door-open"></i></div>
-                <div>Connexion</div>
-            </a>
-            <a href="register.php" class="nav-item">
-                <div class="nav-item-icon"><i class="fa-solid fa-user-plus"></i></div>
-                <div>Inscription</div>
-            </a>
-        <?php endif; ?>
+    
+        <a href="login.php" class="nav-item">
+            <div class="nav-item-icon"><i class="fa-solid fa-door-open"></i></div>
+            <div>Connexion</div>
+        </a>
+        <a href="register.php" class="nav-item">
+            <div class="nav-item-icon"><i class="fa-solid fa-user-plus"></i></div>
+            <div>Inscription</div>
+        </a>
     </nav>
 
     <footer>

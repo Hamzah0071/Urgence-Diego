@@ -103,8 +103,10 @@ $categories = [
             background:var(--paper);
             display:grid;
             grid-template-columns:400px 1fr;
-            height:calc(100vh - 0px);
+            height:calc(100vh - var(--header-height, 77px));
             min-height:640px;
+            position:relative;
+            overflow:hidden;
         }
         #urg-sidebar{
             background:var(--paper);
@@ -225,10 +227,116 @@ $categories = [
         .popup-title{ font-family:'Fraunces',serif; font-weight:600; font-size:15px; color:var(--navy-dk); margin:2px 0; }
         .popup-address{ font-size:12px; color:#5b6674; }
 
+        /* Éléments du bottom-sheet mobile : masqués par défaut sur desktop */
+        .sheet-handle{ display:none; }
+        .sheet-backdrop{ display:none; }
+
+        /* ==========================================================
+           MOBILE — la sidebar devient une "bottom sheet" rétractable
+           au-dessus de la carte plein écran, au lieu d'un split 50/50.
+           ========================================================== */
         @media (max-width:760px){
-            #urg-app{ grid-template-columns:1fr; grid-template-rows:auto 1fr; height:auto; }
-            #urg-sidebar{ border-right:none; border-bottom:1px solid var(--line); max-height:52vh; }
-            #urg-map{ min-height:56vh; }
+            #urg-app{
+                display:block;
+                height:calc(100vh - var(--header-height, 77px));
+                min-height:0;
+            }
+
+            #urg-map{
+                position:absolute;
+                inset:0;
+                height:100%;
+                width:100%;
+            }
+
+            #urg-sidebar{
+                position:fixed;
+                left:0;
+                right:0;
+                bottom:0;
+                z-index:500;
+                height:82vh;
+                max-height:82vh;
+                border-right:none;
+                border-radius:18px 18px 0 0;
+                box-shadow:0 -10px 30px rgba(28,35,30,0.18);
+                transform:translateY(calc(100% - 62px));
+                transition:transform .32s cubic-bezier(.32,.72,0,1);
+            }
+
+            #urg-sidebar.expanded{
+                transform:translateY(0);
+            }
+
+            .sheet-handle{
+                display:flex;
+                flex-direction:column;
+                align-items:center;
+                justify-content:center;
+                gap:6px;
+                height:62px;
+                flex-shrink:0;
+                cursor:pointer;
+                background:var(--paper);
+                border-radius:18px 18px 0 0;
+            }
+
+            .sheet-handle-bar{
+                width:40px;
+                height:4px;
+                border-radius:4px;
+                background:var(--line);
+            }
+
+            .sheet-handle-text{
+                font-family:'Space Mono',monospace;
+                font-size:11.5px;
+                letter-spacing:.03em;
+                color:#5b6674;
+                text-align:center;
+                padding:0 16px;
+            }
+
+            .sheet-backdrop{
+                display:block;
+                position:fixed;
+                inset:0;
+                background:rgba(28,35,30,0.35);
+                opacity:0;
+                pointer-events:none;
+                transition:opacity .3s ease;
+                z-index:480;
+            }
+
+            .sheet-backdrop.show{
+                opacity:1;
+                pointer-events:auto;
+            }
+
+            #urg-sidebar header{
+                padding:2px 18px 12px 18px;
+            }
+
+            #urg-sidebar .eyebrow,
+            #urg-sidebar h1,
+            #urg-count{
+                display:none;
+            }
+
+            .pills{
+                flex-wrap:nowrap;
+                overflow-x:auto;
+                -webkit-overflow-scrolling:touch;
+                scrollbar-width:none;
+                margin-top:10px;
+                padding-bottom:2px;
+            }
+            .pills::-webkit-scrollbar{ display:none; }
+            .pill{ flex:0 0 auto; }
+
+            #urg-list{
+                padding:8px 12px calc(20px + var(--safe-area-inset-bottom, 0px)) 12px;
+            }
         }
     </style>
 </head>
@@ -237,6 +345,10 @@ $categories = [
 
 <div id="urg-app">
     <div id="urg-sidebar">
+        <div class="sheet-handle" id="sheetHandle">
+            <span class="sheet-handle-bar"></span>
+            <span class="sheet-handle-text" id="sheetHandleText">Toucher pour voir la liste</span>
+        </div>
         <header>
             <div class="eyebrow">Antsiranana · Diego Suarez</div>
             <h1>Carte des urgences</h1>
@@ -256,6 +368,7 @@ $categories = [
         </header>
         <div id="urg-list"></div>
     </div>
+    <div class="sheet-backdrop" id="sheetBackdrop"></div>
     <div id="urg-map"></div>
 </div>
 
@@ -299,6 +412,41 @@ allServices.filter(s => s.lat !== null && s.lng !== null).forEach(s => {
 let activeCategory = 'tous';
 let searchTerm = '';
 let activeId = null;
+
+/* ---------- Bottom-sheet mobile ---------- */
+const sidebarEl = document.getElementById('urg-sidebar');
+const sheetHandle = document.getElementById('sheetHandle');
+const sheetHandleText = document.getElementById('sheetHandleText');
+const sheetBackdrop = document.getElementById('sheetBackdrop');
+
+function isMobile(){
+    return window.matchMedia('(max-width:760px)').matches;
+}
+
+function setSheetExpanded(expanded){
+    sidebarEl.classList.toggle('expanded', expanded);
+    sheetBackdrop.classList.toggle('show', expanded);
+    if (expanded && sheetHandleText){
+        sheetHandleText.textContent = 'Toucher pour voir la carte';
+    } else {
+        updateHandleLabel();
+    }
+}
+
+function updateHandleLabel(){
+    if (!sheetHandleText || sidebarEl.classList.contains('expanded')) return;
+    const visibleCount = allServices.filter(matchesFilters).length;
+    sheetHandleText.textContent = visibleCount + ' service' + (visibleCount > 1 ? 's' : '') + ' à proximité · Toucher pour la liste';
+}
+
+if (sheetHandle){
+    sheetHandle.addEventListener('click', () => {
+        setSheetExpanded(!sidebarEl.classList.contains('expanded'));
+    });
+}
+if (sheetBackdrop){
+    sheetBackdrop.addEventListener('click', () => setSheetExpanded(false));
+}
 
 function matchesFilters(s){
     const catOk = activeCategory === 'tous' || s.categorie === activeCategory;
@@ -347,6 +495,8 @@ function render(){
 
     document.getElementById('urg-count').textContent =
         visible.length + ' résultat' + (visible.length > 1 ? 's' : '');
+
+    updateHandleLabel();
 }
 
 function selectService(id, flyMap){
@@ -360,6 +510,10 @@ function selectService(id, flyMap){
     if (!s || s.lat === null || s.lng === null) return;
     if (flyMap) map.flyTo([s.lat, s.lng], 16, { duration: 0.8 });
     markers[id]?.openPopup();
+
+    // Sur mobile, quand on choisit un service depuis la liste, on referme
+    // la sheet pour laisser voir la carte et le pin sélectionné.
+    if (flyMap && isMobile()) setSheetExpanded(false);
 }
 
 document.getElementById('urg-search').addEventListener('input', (e) => {

@@ -1,4 +1,3 @@
-<!-- header -->
 <?php
 require_once __DIR__ . '/session.php';
 $current_page = basename($_SERVER['PHP_SELF']);
@@ -238,6 +237,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
         transition: transform 0.3s ease;
         box-shadow: -8px 0 24px rgba(0, 0, 0, 0.08);
         overflow-y: auto;
+        z-index: 950; /* doit rester au-dessus de .nav-backdrop (900) sinon le backdrop intercepte les clics */
     }
 
     .top-nav.open {
@@ -301,7 +301,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
 <header class="site-header">
     <div class="container ">
-        <a href="../home.php" class="logo-placeholder">
+        <a href="../client/home.php" class="logo-placeholder">
             <i class="fa-solid fa-truck-medical logo-icon"></i>
             URGENCES
         </a>
@@ -313,24 +313,22 @@ $current_page = basename($_SERVER['PHP_SELF']);
         <!-- Navigation : liste déroulante sur mobile, barre horizontale sur tablette/PC -->
         <nav class="top-nav" id="topNav">
             <div class="nav-links-scroll">
-                <a href="#" class="<?= $current_page === 'accueil' ? 'active' : '' ?>">
+                <a href="../client/home.php" class="<?= $current_page === 'accueil.php' ? 'active' : '' ?>">
                     <i class="fa-solid fa-house"></i> Accueil
                 </a>
-                <a href="actualites.php" class="<?= $current_page === 'articles' ? 'active' : '' ?>">
+                <a href="../client/actualites.php" class="<?= $current_page === 'actualites.php' ? 'active' : '' ?>">
                     <i class="fa-solid fa-newspaper"></i> Articles
                 </a>
-                <a href="service-urgence.php" class="<?= $current_page === 'service-urgence' ? 'active' : '' ?>">
+                <a href="../client/service-urgence.php" class="<?= $current_page === 'service-urgence.php' ? 'active' : '' ?>">
                     <i class="fa-solid fa-tower-broadcast"></i> Service d'urgence
                 </a>
-                <a href="../client/urgences-carte.php" class="<?= $current_page === 'urgences-carte' ? 'active' : '' ?>">
-                    <i class="fa-solid fa-tower-broadcast"></i> MAPE
+                <a href="../client/urgences-carte.php" class="<?= $current_page === 'urgences-carte.php' ? 'active' : '' ?>">
+                    <i class="fa-solid fa-map-location-dot"></i> Carte
                 </a>
-                <a href="faire-un-don.php" class="<?= $current_page === 'faire-un-don' ? 'active' : '' ?>">
-                    <i class="fa-solid fa-hand-holding-dollar"></i> Faire un don
-                </a>
+
             </div>
             <div class="nav-actions">
-                <a href="/./logout.php" class="btn-logout">
+                <a href="../logout.php" class="btn-logout">
                     <i class="fa-solid fa-user"></i> Déconnexion
                 </a>
             </div>

@@ -1,5 +1,5 @@
-<!-- admin session -->
 <?php
+// admin_session.php
 session_start();
 
 // Inclure le fichier de connexion à la base de données
@@ -12,9 +12,14 @@ if (!isset($_SESSION["id_utilisateur"])) {
 }
 
 // Vérifier le rôle de l'utilisateur (doit être Administrateur)
-// Assurez-vous que le rôle 'Administrateur' a l'id_role correspondant dans votre table 'roles'
 $id_utilisateur = $_SESSION["id_utilisateur"];
-$stmt = $pdo->prepare("SELECT u.id_role, r.nom_role FROM utilisateurs u JOIN roles r ON u.id_role = r.id_role WHERE u.id_utilisateur = :id_utilisateur");
+
+$stmt = $pdo->prepare("
+    SELECT u.id_role, r.nom_role 
+    FROM utilisateur u 
+    JOIN role r ON u.id_role = r.id_role 
+    WHERE u.id_utilisateur = :id_utilisateur
+");
 $stmt->execute(['id_utilisateur' => $id_utilisateur]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 

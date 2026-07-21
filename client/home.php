@@ -15,13 +15,13 @@ require_once '../includes/db_connect.php';
 <body>
 <?php include '../includes/header.php' ?>
 
-    <!-- <section class="hero">
+    <section class="hero">
         <div class="hero-content">
             <h1>Bienvenue sur Urgences Antsiranana</h1>
             <p>Votre guide complet pour les services d'urgence à Antsiranana.</p>
             <a href="#" class="btn-primary">En savoir plus</a>
         </div>
-    </section> -->
+    </section>
 
     
 </body>
