@@ -3,14 +3,11 @@
  * admin_articles.php
  * -------------------------------------------------------------
  * Gestion des sources d'articles / actualités pour le site.
- * Deux types de sources :
- *   - "rss"          : flux RSS classique (URL directe)
- *   - "reseau_social" : chaîne TV malgache sans RSS natif. On ne
- *                       scrape pas Facebook directement : l'admin
- *                       colle ici une URL de flux déjà générée par
- *                       un outil externe (rss.app, RSS-Bridge
- *                       auto-hébergé, etc.), et elle est ensuite
- *                       traitée comme n'importe quel flux RSS.
+ * Pour l'instant, seules les sources de type "reseau_social" sont
+ * gérées (chaînes TV malgaches sans RSS natif). On ne scrape pas
+ * Facebook directement : l'admin colle ici une URL de flux déjà
+ * générée par un outil externe (rss.app, RSS-Bridge auto-hébergé,
+ * etc.), et elle est ensuite traitée comme n'importe quel flux RSS.
  * -------------------------------------------------------------
  */
 
@@ -30,26 +27,7 @@ $pdo->exec("
         date_ajout DATETIME DEFAULT CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
 ");
-// Ajoute les colonnes manquantes si la table existait déjà sous une forme plus simple
 $pdo->exec("ALTER TABLE sources_articles ADD COLUMN IF NOT EXISTS type_source ENUM('rss','reseau_social') NOT NULL DEFAULT 'rss'");
-
-/* -------------------------------------------------------------
- * Liste pré-configurée des chaînes TV malgaches sans RSS natif
- * ----------------------------------------------------------- */
-$chaines_predefinies = [
-    'TVM - Télévision Malagasy',
-    'TV Plus Madagascar',
-    'Real TV Madagascar',
-    'RTA (Radio Télévision Analamanga)',
-    'Viva TV Madagascar',
-    'MBS (Madagascar Broadcasting System)',
-    'Record TV Madagascar',
-    'IBC Madagascar',
-    "Dream'in TV",
-    'Kolo TV',
-    'MATV',
-    'Autre (nom personnalisé)',
-];
 
 $erreur = '';
 $succes = '';
@@ -61,42 +39,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $action = $_POST['action'] ?? '';
 
-    // --- Ajout d'une source ---
+    // --- Ajout d'une source (réseau social uniquement pour l'instant) ---
     if ($action === 'ajouter') {
-        $type = $_POST['type_source'] ?? 'rss';
+        $nom = trim($_POST['nom_source'] ?? '');
+        $url = trim($_POST['url_flux'] ?? '');
 
-        if ($type === 'rss') {
-            $nom = trim($_POST['nom_source'] ?? '');
-            $url = trim($_POST['url_flux'] ?? '');
-
-            if ($nom === '' || $url === '' || !filter_var($url, FILTER_VALIDATE_URL)) {
-                $erreur = "Merci de renseigner un nom et une URL de flux RSS valide.";
-            } else {
-                $stmt = $pdo->prepare("
-                    INSERT INTO sources_articles (nom_source, type_source, url_flux)
-                    VALUES (:nom, 'rss', :url)
-                ");
-                $stmt->execute(['nom' => $nom, 'url' => $url]);
-                $succes = "Source RSS ajoutée avec succès.";
-            }
-
-        } elseif ($type === 'reseau_social') {
-            $nom_choisi = trim($_POST['chaine_predefinie'] ?? '');
-            $nom_perso  = trim($_POST['nom_source_perso'] ?? '');
-            $url        = trim($_POST['url_flux'] ?? '');
-
-            $nom_final = ($nom_choisi === 'Autre (nom personnalisé)') ? $nom_perso : $nom_choisi;
-
-            if ($nom_final === '' || $url === '' || !filter_var($url, FILTER_VALIDATE_URL)) {
-                $erreur = "Merci de choisir une chaîne et de coller une URL de flux valide.";
-            } else {
-                $stmt = $pdo->prepare("
-                    INSERT INTO sources_articles (nom_source, type_source, url_flux)
-                    VALUES (:nom, 'reseau_social', :url)
-                ");
-                $stmt->execute(['nom' => $nom_final, 'url' => $url]);
-                $succes = "Source réseau social ajoutée avec succès.";
-            }
+        if ($nom === '' || $url === '' || !filter_var($url, FILTER_VALIDATE_URL)) {
+            $erreur = "Merci de renseigner un nom et une URL de flux valide.";
+        } else {
+            $stmt = $pdo->prepare("
+                INSERT INTO sources_articles (nom_source, type_source, url_flux)
+                VALUES (:nom, 'reseau_social', :url)
+            ");
+            $stmt->execute(['nom' => $nom, 'url' => $url]);
+            $succes = "Source ajoutée avec succès.";
         }
     }
 
@@ -132,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 /* -------------------------------------------------------------
  * Récupération de la liste des sources existantes
  * ----------------------------------------------------------- */
-$sources = $pdo->query("SELECT * FROM sources_articles ORDER BY type_source, nom_source")->fetchAll(PDO::FETCH_ASSOC);
+$sources = $pdo->query("SELECT * FROM sources_articles ORDER BY nom_source")->fetchAll(PDO::FETCH_ASSOC);
 
 include '../includes/admin_header.php';
 ?>
@@ -143,59 +99,24 @@ include '../includes/admin_header.php';
         <div class="admin-content">
             <header>
                 <h1>Gestion des Sources d'Articles</h1>
-                <p>Ajouter, modifier ou supprimer des flux RSS et des chaînes TV utilisés pour alimenter les actualités du site.</p>
+                <p>Ajouter, modifier ou supprimer les chaînes TV / réseaux sociaux utilisés pour alimenter les actualités du site.</p>
                 <a href="import_articles.php" class="btn-primary" style="text-decoration:none; display:inline-block;">
-                    🔄 Actualiser les articles maintenant
+                    <i class="fa-solid fa-arrows-rotate"></i> Actualiser les articles maintenant
                 </a>
             </header>
 
             <?php if ($erreur): ?><div class="alert erreur"><?php echo htmlspecialchars($erreur); ?></div><?php endif; ?>
             <?php if ($succes): ?><div class="alert success"><?php echo htmlspecialchars($succes); ?></div><?php endif; ?>
 
-            <!-- Formulaires d'ajout -->
+            <!-- Formulaire d'ajout -->
             <section class="add-pharmacy-section">
-                <div class="onglets">
-                    <button type="button" class="onglet-btn actif" onclick="afficherOnglet('rss')">Flux RSS classique</button>
-                    <button type="button" class="onglet-btn" onclick="afficherOnglet('reseau_social')">Chaîne TV / Réseaux sociaux</button>
-                </div>
-
-                <!-- Formulaire : source RSS classique -->
-                <form method="post" class="bloc-form actif" id="form-rss">
+                <form method="post" id="form-reseau_social">
                     <input type="hidden" name="action" value="ajouter">
-                    <input type="hidden" name="type_source" value="rss">
 
                     <div class="form-grid">
                         <div class="form-group">
-                            <label for="nom_source_rss">Nom de la source</label>
-                            <input type="text" id="nom_source_rss" name="nom_source" placeholder="Ex : Midi Madagasikara" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="url_flux_rss">URL du flux RSS</label>
-                            <input type="url" id="url_flux_rss" name="url_flux" placeholder="https://exemple.mg/feed" required>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn-primary mt-30">Ajouter le flux RSS</button>
-                </form>
-
-                <!-- Formulaire : chaîne TV / réseau social -->
-                <form method="post" class="bloc-form" id="form-reseau_social">
-                    <input type="hidden" name="action" value="ajouter">
-                    <input type="hidden" name="type_source" value="reseau_social">
-
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="select-chaine">Chaîne</label>
-                            <select name="chaine_predefinie" id="select-chaine" onchange="toggleNomPerso()">
-                                <?php foreach ($chaines_predefinies as $chaine): ?>
-                                    <option value="<?php echo htmlspecialchars($chaine); ?>"><?php echo htmlspecialchars($chaine); ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-
-                        <div class="form-group" id="bloc-nom-perso" style="display:none;">
-                            <label for="nom_source_perso">Nom personnalisé</label>
-                            <input type="text" id="nom_source_perso" name="nom_source_perso" placeholder="Nom de la chaîne">
+                            <label for="nom_source_reseau">Nom de la chaîne</label>
+                            <input type="text" id="nom_source_reseau" name="nom_source" placeholder="Ex : TVM - Télévision Malagasy" required>
                         </div>
 
                         <div class="form-group full-width">
@@ -226,7 +147,6 @@ include '../includes/admin_header.php';
                             <thead>
                                 <tr>
                                     <th>Nom</th>
-                                    <th>Type</th>
                                     <th>URL du flux</th>
                                     <th>Statut</th>
                                     <th class="actions-cell">Actions</th>
@@ -236,13 +156,6 @@ include '../includes/admin_header.php';
                                 <?php foreach ($sources as $s): ?>
                                 <tr>
                                     <td data-label="Nom"><?php echo htmlspecialchars($s['nom_source']); ?></td>
-                                    <td data-label="Type">
-                                        <?php if ($s['type_source'] === 'rss'): ?>
-                                            <span class="badge badge-rss">RSS</span>
-                                        <?php else: ?>
-                                            <span class="badge badge-reseau">Réseau social</span>
-                                        <?php endif; ?>
-                                    </td>
                                     <td data-label="URL du flux" style="word-break:break-all;"><?php echo htmlspecialchars($s['url_flux']); ?></td>
                                     <td data-label="Statut">
                                         <?php if ($s['actif']): ?>
@@ -346,12 +259,6 @@ include '../includes/admin_header.php';
     .pharmacy-list-section h2 { margin-top: 0; margin-bottom: 20px; font-size: 1.3rem; border-bottom: 2px solid var(--primary); padding-bottom: 10px; }
     .empty-state { color: var(--text-muted); font-style: italic; }
 
-    .onglets { display: flex; gap: 10px; margin-bottom: 20px; }
-    .onglet-btn { padding: 8px 16px; border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; background: #f3f4f6; font-weight: 600; color: var(--text-main); }
-    .onglet-btn.actif { background: var(--primary); color: #fff; border-color: var(--primary); }
-    .bloc-form { display: none; }
-    .bloc-form.actif { display: block; }
-
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
     .form-group { display: flex; flex-direction: column; }
     .form-group label { margin-bottom: 6px; font-weight: 600; font-size: 0.9rem; color: var(--text-main); }
@@ -399,14 +306,11 @@ include '../includes/admin_header.php';
     .inline-form { display: inline-block; }
     .mt-30 { margin-top: 30px; }
 
-    .badge { padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 700; color: #fff; }
-    .badge-rss { background: var(--primary); }
-    .badge-reseau { background: #8e44ad; }
     .etat-actif { color: #1a7a2e; font-weight: 700; }
     .etat-inactif { color: #a12b2b; font-weight: 700; }
 
     .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid var(--border-color); border-radius: var(--radius); }
-    .table-scroll table { min-width: 760px; width: 100%; border-collapse: collapse; }
+    .table-scroll table { min-width: 640px; width: 100%; border-collapse: collapse; }
     .table-scroll th, .table-scroll td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border-color); font-size: 0.9rem; vertical-align: top; }
     .table-scroll th { background-color: #f7f8f9; font-weight: 700; color: var(--text-main); text-transform: uppercase; font-size: 0.78rem; letter-spacing: 0.03em; }
     .table-scroll tbody tr:hover { background-color: #fafbfc; }
@@ -421,7 +325,6 @@ include '../includes/admin_header.php';
     @media (max-width: 700px) {
         .form-grid { grid-template-columns: 1fr; }
         .admin-content header h1 { font-size: 1.5rem; }
-        .onglets { flex-direction: column; }
     }
     @media (max-width: 600px) {
         .admin-content { padding: 12px; }
@@ -473,19 +376,6 @@ include '../includes/admin_header.php';
 </style>
 
 <script>
-function afficherOnglet(type) {
-    document.querySelectorAll('.onglet-btn').forEach(b => b.classList.remove('actif'));
-    document.querySelectorAll('.bloc-form').forEach(f => f.classList.remove('actif'));
-    document.getElementById('form-' + type).classList.add('actif');
-    event.currentTarget.classList.add('actif');
-}
-
-function toggleNomPerso() {
-    const select = document.getElementById('select-chaine');
-    const bloc = document.getElementById('bloc-nom-perso');
-    bloc.style.display = (select.value === 'Autre (nom personnalisé)') ? 'block' : 'none';
-}
-
 document.addEventListener('DOMContentLoaded', function () {
     var modal = document.getElementById("editSourceModal");
     var closeBtn = document.querySelector('.close-button');

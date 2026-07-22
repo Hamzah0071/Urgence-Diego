@@ -4,7 +4,7 @@
  * -------------------------------------------------------------
  * Parcourt toutes les sources actives de `sources_articles`,
  * télécharge chaque flux (RSS 2.0 ou Atom), et insère les
- * nouveaux articles dans la table `articles`.
+ * nouveaux articles dans la table `article`.
  *
  * Peut être :
  *  - déclenché manuellement depuis l'admin (bouton "Actualiser")
@@ -133,26 +133,26 @@ $stmt_sources = $pdo->query("SELECT * FROM sources_articles WHERE actif = 1");
 $sources = $stmt_sources->fetchAll(PDO::FETCH_ASSOC);
 
 $stmt_insertion = $pdo->prepare("
-    INSERT IGNORE INTO articles (titre, contenu, lien_source, id_source, id_auteur, date_publication)
+    INSERT IGNORE INTO article (titre, contenu, lien_source, id_source, id_auteur, date_publication)
     VALUES (:titre, :contenu, :lien, :id_source, NULL, :date_publication)
 ");
 
 $total_nouveaux = 0;
 $total_ignores = 0;
-$rapport = [];
+$rapport = []; // chaque ligne : ['type' => 'succes'|'erreur'|'avertissement', 'source' => ..., 'message' => ..., 'nb_nouveaux' => ...]
 
 foreach ($sources as $source) {
     $xmlBrut = telechargerFlux($source['url_flux']);
 
     if ($xmlBrut === false || $xmlBrut === '') {
-        $rapport[] = "❌ {$source['nom_source']} : impossible de télécharger le flux.";
+        $rapport[] = ['type' => 'erreur', 'source' => $source['nom_source'], 'message' => "Impossible de télécharger le flux."];
         continue;
     }
 
     $articles = parserFlux($xmlBrut);
 
     if (empty($articles)) {
-        $rapport[] = "⚠️ {$source['nom_source']} : flux téléchargé mais aucun article détecté (format non reconnu ?).";
+        $rapport[] = ['type' => 'avertissement', 'source' => $source['nom_source'], 'message' => "Flux téléchargé mais aucun article détecté (format non reconnu ?)."];
         continue;
     }
 
@@ -179,7 +179,7 @@ foreach ($sources as $source) {
         }
     }
 
-    $rapport[] = "✅ {$source['nom_source']} : $nouveaux_pour_cette_source nouvel(aux) article(s) ajouté(s).";
+    $rapport[] = ['type' => 'succes', 'source' => $source['nom_source'], 'message' => "$nouveaux_pour_cette_source nouvel(aux) article(s) ajouté(s).", 'nb_nouveaux' => $nouveaux_pour_cette_source];
 }
 
 /* -------------------------------------------------------------
@@ -188,16 +188,236 @@ foreach ($sources as $source) {
 if ($est_cli) {
     echo "=== Import des articles ===\n";
     foreach ($rapport as $ligne) {
-        echo $ligne . "\n";
+        $prefixe = ['succes' => '✅', 'erreur' => '❌', 'avertissement' => '⚠️'][$ligne['type']];
+        echo "$prefixe {$ligne['source']} : {$ligne['message']}\n";
     }
     echo "Total : $total_nouveaux nouveaux, $total_ignores déjà existants.\n";
-} else {
-    header('Content-Type: text/html; charset=utf-8');
-    echo "<h2>Résultat de l'importation</h2><ul>";
-    foreach ($rapport as $ligne) {
-        echo "<li>" . htmlspecialchars($ligne) . "</li>";
-    }
-    echo "</ul>";
-    echo "<p><strong>Total : $total_nouveaux nouveaux article(s), $total_ignores déjà existant(s).</strong></p>";
-    echo '<p><a href="admin_articles.php">← Retour à la gestion des sources</a></p>';
+    exit;
 }
+
+header('Content-Type: text/html; charset=utf-8');
+?>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Import des articles</title>
+<style>
+    :root {
+        --primary: #2c7a7b;
+        --primary-dark: #1f5b5c;
+        --success-bg: #d4edda;
+        --success-text: #155724;
+        --success-border: #c3e6cb;
+        --erreur-bg: #fdecea;
+        --erreur-text: #a12b2b;
+        --erreur-border: #f5c6cb;
+        --warn-bg: #fff8e1;
+        --warn-text: #8a6100;
+        --warn-border: #ffe4a1;
+        --border-color: #dcdfe3;
+        --text-main: #2d3436;
+        --text-muted: #6b7280;
+        --radius: 10px;
+        --shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: #f4f6f7;
+        color: var(--text-main);
+        margin: 0;
+        padding: 30px 16px;
+    }
+
+    .import-container {
+        max-width: 720px;
+        margin: 0 auto;
+    }
+
+    .import-header {
+        text-align: center;
+        margin-bottom: 25px;
+    }
+
+    .import-header .icone {
+        font-size: 2.4rem;
+        display: block;
+        margin-bottom: 8px;
+    }
+
+    .import-header h1 {
+        margin: 0 0 6px;
+        font-size: 1.6rem;
+    }
+
+    .import-header p {
+        margin: 0;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
+
+    .resume-globale {
+        background: #fff;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 20px 25px;
+        display: flex;
+        justify-content: space-around;
+        text-align: center;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .resume-item .nombre {
+        font-size: 1.8rem;
+        font-weight: 700;
+        display: block;
+        line-height: 1.2;
+    }
+
+    .resume-item .label {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+
+    .resume-item.nouveaux .nombre { color: var(--primary); }
+    .resume-item.ignores .nombre { color: var(--text-muted); }
+
+    .rapport-liste {
+        list-style: none;
+        margin: 0 0 25px;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .rapport-item {
+        background: #fff;
+        border: 1px solid var(--border-color);
+        border-left: 4px solid var(--border-color);
+        border-radius: var(--radius);
+        padding: 14px 18px;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        box-shadow: var(--shadow);
+    }
+
+    .rapport-item .puce {
+        font-size: 1.2rem;
+        line-height: 1.4;
+        flex-shrink: 0;
+    }
+
+    .rapport-item .contenu-item {
+        flex: 1;
+    }
+
+    .rapport-item .nom-source {
+        font-weight: 700;
+        display: block;
+        margin-bottom: 2px;
+    }
+
+    .rapport-item .message {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
+
+    .rapport-item.succes { border-left-color: #1a7a2e; background: var(--success-bg); }
+    .rapport-item.succes .nom-source { color: var(--success-text); }
+
+    .rapport-item.erreur { border-left-color: var(--erreur-text); background: var(--erreur-bg); }
+    .rapport-item.erreur .nom-source { color: var(--erreur-text); }
+
+    .rapport-item.avertissement { border-left-color: var(--warn-text); background: var(--warn-bg); }
+    .rapport-item.avertissement .nom-source { color: var(--warn-text); }
+
+    .aucune-source {
+        text-align: center;
+        color: var(--text-muted);
+        font-style: italic;
+        padding: 30px;
+        background: #fff;
+        border-radius: var(--radius);
+        border: 1px solid var(--border-color);
+    }
+
+    .retour {
+        text-align: center;
+    }
+
+    .retour a {
+        display: inline-block;
+        text-decoration: none;
+        background: var(--primary);
+        color: #fff;
+        padding: 10px 22px;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: background-color 0.15s ease;
+    }
+
+    .retour a:hover {
+        background: var(--primary-dark);
+    }
+</style>
+</head>
+<body>
+<div class="import-container">
+
+    <div class="import-header">
+        <span class="icone">🔄</span>
+        <h1>Import des articles</h1>
+        <p>Résultat de l'actualisation des flux RSS et réseaux sociaux</p>
+    </div>
+
+    <div class="resume-globale">
+        <div class="resume-item nouveaux">
+            <span class="nombre"><?php echo (int)$total_nouveaux; ?></span>
+            <span class="label">Nouveaux articles</span>
+        </div>
+        <div class="resume-item ignores">
+            <span class="nombre"><?php echo (int)$total_ignores; ?></span>
+            <span class="label">Déjà existants</span>
+        </div>
+        <div class="resume-item sources">
+            <span class="nombre"><?php echo count($sources); ?></span>
+            <span class="label">Sources traitées</span>
+        </div>
+    </div>
+
+    <?php if (empty($rapport)): ?>
+        <p class="aucune-source">Aucune source active n'est configurée pour le moment.</p>
+    <?php else: ?>
+        <ul class="rapport-liste">
+            <?php foreach ($rapport as $ligne):
+                $puce = ['succes' => '✅', 'erreur' => '❌', 'avertissement' => '⚠️'][$ligne['type']];
+            ?>
+                <li class="rapport-item <?php echo $ligne['type']; ?>">
+                    <span class="puce"><?php echo $puce; ?></span>
+                    <span class="contenu-item">
+                        <span class="nom-source"><?php echo htmlspecialchars($ligne['source']); ?></span>
+                        <span class="message"><?php echo htmlspecialchars($ligne['message']); ?></span>
+                    </span>
+                </li>
+            <?php endforeach; ?>
+        </ul>
+    <?php endif; ?>
+
+    <div class="retour">
+        <a href="admin_articles.php">← Retour à la gestion des sources</a>
+    </div>
+
+</div>
+</body>
+</html>

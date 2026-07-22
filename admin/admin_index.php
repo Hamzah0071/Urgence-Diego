@@ -2,11 +2,11 @@
 require_once '../includes/admin_session.php';
 require_once '../includes/db_connect.php';
 
-// Récupérer les données pour les statistiques
-// Nombre de pharmacies de garde (pour aujourd'hui)
 $today = date('Y-m-d');
+
+// Liste des pharmacies de garde aujourd'hui
 $stmt_pharmacies_garde = $pdo->prepare("
-    SELECT COUNT(DISTINCT s.id_service)
+    SELECT DISTINCT s.libelle
     FROM garde g
     JOIN service s ON g.id_service = s.id_service
     JOIN type_service t ON s.id_type = t.id_type
@@ -14,13 +14,14 @@ $stmt_pharmacies_garde = $pdo->prepare("
     AND :today BETWEEN g.date_debut AND g.date_fin
 ");
 $stmt_pharmacies_garde->execute(['today' => $today]);
-$num_pharmacies_garde = $stmt_pharmacies_garde->fetchColumn();
+$pharmacies_garde = $stmt_pharmacies_garde->fetchAll(PDO::FETCH_COLUMN);
+$num_pharmacies_garde = count($pharmacies_garde);
 
-// Nombre total de services d'urgence actifs (tous types confondus)
+// Nombre total de services d'urgence actifs
 $stmt_services_urgence = $pdo->query("SELECT COUNT(*) FROM service WHERE actif = 1");
 $num_services_urgence = $stmt_services_urgence->fetchColumn();
 
-// Mises à jour récentes (les 5 dernières modifications de tours de garde)
+// Mises à jour récentes
 $stmt_recent_updates = $pdo->prepare("
     SELECT t.nom_type as type, s.libelle as nom, 'Mise à jour garde' as action, g.date_fin as date,
            CASE WHEN :today BETWEEN g.date_debut AND g.date_fin THEN 'Actif' ELSE 'Terminé' END as statut
@@ -33,9 +34,17 @@ $stmt_recent_updates = $pdo->prepare("
 $stmt_recent_updates->execute(['today' => $today]);
 $recent_updates = $stmt_recent_updates->fetchAll(PDO::FETCH_ASSOC);
 
-// Inclure l'en-tête et la barre latérale
 include '../includes/admin_header.php';
 ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../asset/css/admin/admin-dashboard.css">
+</head>
+<body>
 
 <main class="admin-content">
 
@@ -45,6 +54,15 @@ include '../includes/admin_header.php';
         <div class="stat-card">
             <h3>Pharmacies de garde aujourd'hui</h3>
             <p class="stat-number"><?= htmlspecialchars($num_pharmacies_garde) ?></p>
+            <?php if (!empty($pharmacies_garde)): ?>
+                <ul class="stat-detail-list">
+                    <?php foreach ($pharmacies_garde as $nom_pharmacie): ?>
+                        <li><?= htmlspecialchars($nom_pharmacie) ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php else: ?>
+                <p class="stat-empty">Aucune pharmacie de garde aujourd'hui.</p>
+            <?php endif; ?>
         </div>
         <div class="stat-card">
             <h3>Services d'urgence actifs</h3>
@@ -74,7 +92,7 @@ include '../includes/admin_header.php';
                             <td><?= htmlspecialchars($update['nom']) ?></td>
                             <td><?= htmlspecialchars($update['action']) ?></td>
                             <td><?= htmlspecialchars($update['date']) ?></td>
-                            <td><?= htmlspecialchars($update['statut']) ?></td>
+                            <td><span class="badge badge-<?= strtolower($update['statut']) === 'actif' ? 'active' : 'done' ?>"><?= htmlspecialchars($update['statut']) ?></span></td>
                         </tr>
                     <?php endforeach; ?>
                 <?php endif; ?>
@@ -83,9 +101,7 @@ include '../includes/admin_header.php';
     </section>
 
 </main>
-</div>
 
 <?php
-// Inclure le pied de page
 include '../includes/admin_footer.php';
 ?>
