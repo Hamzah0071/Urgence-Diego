@@ -1,0 +1,722 @@
+/* =======================================================
+                    RESET & VARIABLES
+======================================================= */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+:root{
+
+    --primary:#2563EB;
+    --secondary:#1E40AF;
+
+    --danger:#DC2626;
+    --danger-dark:#B91C1C;
+
+    --success:#16A34A;
+    --success-dark:#15803D;
+
+    --pompier:#EA580C;
+    --pompier-dark:#C2410C;
+
+    --text:#1F2937;
+    --text-light:#6B7280;
+
+    --background:#F8FAFC;
+    --white:#FFFFFF;
+
+    --border:#E5E7EB;
+
+    --shadow:0 10px 30px rgba(0,0,0,.08);
+
+    --radius:15px;
+
+}
+
+body{
+
+    font-family:'Inter',sans-serif;
+
+    background:var(--background);
+
+    color:var(--text);
+
+}
+
+
+/* =======================================================
+                    BOUTONS GÉNÉRIQUES
+======================================================= */
+
+.btn-danger{
+
+    display:inline-block;
+
+    padding:15px 30px;
+
+    background:var(--danger);
+
+    color:white;
+
+    border-radius:10px;
+
+    text-decoration:none;
+
+    font-weight:600;
+
+    transition:.3s;
+
+}
+
+.btn-danger:hover{
+
+    transform:translateY(-3px);
+
+}
+
+.btn-primary{
+
+    display:inline-block;
+
+    padding:14px 28px;
+
+    background:var(--primary);
+
+    color:white;
+
+    text-decoration:none;
+
+    border-radius:10px;
+
+    transition:.3s;
+
+}
+
+.btn-primary:hover{
+
+    transform:translateY(-3px);
+
+}
+
+.btn-call{
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+
+    padding:14px;
+    border-radius:10px;
+
+    background:var(--secondary);
+    color:white;
+
+    text-decoration:none;
+    font-weight:600;
+
+    transition:.25s;
+
+}
+
+.btn-call:hover{
+
+    background:var(--primary);
+    transform:translateY(-2px);
+
+}
+
+
+/* =======================================================
+                    HERO
+======================================================= */
+
+.hero{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    gap:70px;
+
+    padding:80px 8%;
+
+}
+
+.hero-content{
+
+    flex:1;
+
+}
+
+.hero-content h1{
+
+    font-size:55px;
+
+    margin-bottom:20px;
+
+    color:var(--secondary);
+
+}
+
+.hero-content p{
+
+    font-size:18px;
+
+    line-height:1.8;
+
+    margin-bottom:35px;
+
+}
+
+.hero-image{
+
+    flex:1;
+
+    text-align:center;
+
+}
+
+.hero img{
+
+    width:100%;
+
+    max-width:500px;
+
+}
+
+
+/* =======================================================
+                SERVICES D'URGENCE (cartes)
+======================================================= */
+
+.services{
+
+    padding:80px 8%;
+
+}
+
+.services h2{
+
+    text-align:center;
+
+    margin-bottom:50px;
+
+    font-size:35px;
+
+}
+
+.cards{
+
+    display:grid;
+
+    grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+
+    gap:22px;
+
+}
+
+.card{
+
+    background:white;
+
+    border-radius:14px;
+
+    padding:22px;
+
+    box-shadow:var(--shadow);
+
+    transition:.25s;
+
+}
+
+.card:hover{
+
+    transform:translateY(-8px);
+
+}
+
+.card-top{
+
+    height:6px;
+    border-radius:8px;
+
+    margin-bottom:18px;
+
+    background:var(--primary);
+
+}
+
+.card i{
+
+    font-size:45px;
+
+    color:var(--primary);
+
+    margin-bottom:20px;
+
+}
+
+.card h3{
+
+    margin-bottom:15px;
+
+}
+
+.card p{
+
+    margin-bottom:20px;
+
+}
+
+.card h4{
+
+    margin-bottom:25px;
+
+    color:var(--danger);
+
+}
+
+/* Couleurs spécifiques par type de service */
+
+.card.ambulance .card-top{ background:var(--danger); }
+.card.ambulance i{ color:var(--danger); }
+.card.ambulance .btn-call{ background:var(--danger); }
+.card.ambulance .btn-call:hover{ background:var(--danger-dark); }
+
+.card.pompier .card-top{ background:var(--pompier); }
+.card.pompier i{ color:var(--pompier); }
+.card.pompier .btn-call{ background:var(--pompier); }
+.card.pompier .btn-call:hover{ background:var(--pompier-dark); }
+
+.card.police .card-top{ background:var(--primary); }
+.card.police i{ color:var(--primary); }
+
+/* Encart numéro de téléphone dans la carte */
+
+.phone{
+
+    background:var(--background);
+    border-radius:10px;
+
+    padding:12px 16px;
+    margin-bottom:18px;
+
+}
+
+.phone small{
+
+    display:block;
+    color:var(--text-light);
+    font-size:13px;
+    margin-bottom:4px;
+
+}
+
+.phone h4{
+
+    font-size:24px;
+    font-family:'JetBrains Mono',monospace;
+    margin-bottom:0;
+
+}
+
+
+/* =======================================================
+        SECTIONS INFO GÉNÉRIQUES (Pharmacies / Hôpitaux)
+======================================================= */
+
+.section-info{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    flex-direction:column;
+
+    padding:80px 8%;
+
+}
+
+.info-text{
+
+    width:700px;
+
+    max-width:100%;
+
+    text-align:center;
+
+}
+
+.info-text h2{
+
+    margin-bottom:20px;
+
+    font-size:35px;
+
+}
+
+.info-text p{
+
+    margin-bottom:30px;
+
+    line-height:1.8;
+
+}
+
+.urgence-numbers {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+    max-height: 180px;
+    overflow-y: auto;
+}
+
+.urgence-empty {
+    font-size: 0.9rem;
+    color: #888;
+    text-align: center;
+}
+
+/* =======================================================
+        PHARMACIE DE GARDE DU JOUR (section dynamique)
+======================================================= */
+
+.garde-section{
+
+    background:white;
+
+}
+
+.garde-list{
+
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+    gap:18px;
+
+    width:100%;
+    max-width:900px;
+
+    margin-bottom:30px;
+
+}
+
+.garde-card{
+
+    display:flex;
+    align-items:center;
+    gap:16px;
+
+    background:var(--background);
+    border-radius:14px;
+    padding:20px;
+
+    box-shadow:var(--shadow);
+
+    text-align:left;
+
+}
+
+.garde-icon{
+
+    flex-shrink:0;
+
+    width:55px;
+    height:55px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    background:var(--success);
+    color:white;
+    font-size:22px;
+    border-radius:50%;
+
+}
+
+.garde-details{
+
+    flex:1;
+
+}
+
+.garde-details h4{
+
+    margin-bottom:6px;
+    font-size:17px;
+
+}
+
+.garde-details p{
+
+    font-size:14px;
+    color:var(--text-light);
+
+    display:flex;
+    align-items:center;
+    gap:6px;
+
+}
+
+.garde-card .btn-call{
+
+    width:auto;
+    padding:10px 18px;
+    font-size:14px;
+
+    background:var(--success);
+
+}
+
+.garde-card .btn-call:hover{
+
+    background:var(--success-dark);
+
+}
+
+.garde-empty{
+
+    color:var(--text-light);
+    font-style:italic;
+    margin-bottom:20px;
+
+}
+
+
+/* =======================================================
+                DERNIÈRES ACTUALITÉS
+======================================================= */
+
+.news-section{
+
+    padding:80px 8%;
+
+}
+
+.news-section h2{
+
+    text-align:center;
+    margin-bottom:50px;
+    font-size:35px;
+
+}
+
+.news-grid{
+
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+    gap:22px;
+
+    margin-bottom:40px;
+
+}
+
+.news-card{
+
+    display:flex;
+    flex-direction:column;
+
+    background:white;
+    border-radius:14px;
+    overflow:hidden;
+
+    box-shadow:var(--shadow);
+
+    text-decoration:none;
+    color:var(--text);
+
+    transition:.25s;
+
+}
+
+.news-card:hover{
+
+    transform:translateY(-8px);
+
+}
+
+.news-img{
+
+    width:100%;
+    height:180px;
+
+    overflow:hidden;
+
+}
+
+.news-img img{
+
+    width:100%;
+    height:100%;
+
+    object-fit:cover;
+
+    transition:.4s;
+
+}
+
+.news-card:hover .news-img img{
+
+    transform:scale(1.08);
+
+}
+
+.news-content{
+
+    padding:20px;
+
+}
+
+.news-date{
+
+    display:flex;
+    align-items:center;
+    gap:6px;
+
+    font-size:13px;
+    color:var(--primary);
+    font-weight:600;
+
+    margin-bottom:10px;
+
+}
+
+.news-title{
+
+    font-size:18px;
+    margin-bottom:10px;
+
+    display:-webkit-box;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
+
+}
+
+.news-excerpt{
+
+    font-size:14px;
+    line-height:1.6;
+    color:var(--text-light);
+
+}
+
+.news-empty{
+
+    text-align:center;
+    color:var(--text-light);
+    font-style:italic;
+    margin-bottom:30px;
+
+}
+
+.news-more{
+
+    text-align:center;
+
+}
+
+
+/* =======================================================
+                    DON
+======================================================= */
+
+.don{
+
+    background:var(--primary);
+
+    color:white;
+
+    text-align:center;
+
+    padding:80px 8%;
+
+}
+
+.don h2{
+
+    margin-bottom:20px;
+
+}
+
+.don p{
+
+    margin-bottom:30px;
+
+}
+
+
+/* =======================================================
+                RESPONSIVE (Tablette & Mobile)
+======================================================= */
+
+@media (max-width:768px){
+
+    .hero{
+
+        flex-direction:column;
+        text-align:center;
+        gap:40px;
+        padding:60px 6%;
+
+    }
+
+    .hero-content h1{
+
+        font-size:36px;
+
+    }
+
+    .services,
+    .section-info,
+    .news-section,
+    .don{
+
+        padding:60px 6%;
+
+    }
+
+    .info-text{
+
+        width:100%;
+
+    }
+
+    .garde-card{
+
+        flex-direction:column;
+        text-align:center;
+
+    }
+
+    .garde-card .btn-call{
+
+        width:100%;
+
+    }
+
+}
+
+@media (max-width:480px){
+
+    .hero-content h1{
+
+        font-size:28px;
+
+    }
+
+    .card{
+
+        padding:18px;
+
+    }
+
+}

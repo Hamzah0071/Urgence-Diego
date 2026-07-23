@@ -1,88 +1,244 @@
+/* ===================================================
+   VARIABLES DE COULEUR EXIGÉES
+   - Pharmacie : Vert
+   - Pompiers  : Rouge
+   - Police    : Bleu
+   - Hôpital   : Blanc
+   =================================================== */
 :root {
-    --bg-light: #f8fafc;
-    --bg-white: #ffffff;
-    --blue-deep: #1e40af;
-    --blue-deep-dark: #1e3a8a;   /* variante foncée du bleu, utilisée pour la Police */
-    --red-emergency: #dc2626;
+    --color-pharmacie: #16a34a; /* Vert */
+    --color-pompier: #dc2626;   /* Rouge */
+    --color-police: #2563eb;    /* Bleu */
+    --color-hopital: #ffffff;   /* Blanc */
+    --color-bg-page: #f8fafc;
     --text-dark: #1e293b;
     --text-muted: #64748b;
-    --transition: all 0.3s ease;
-    --safe-area-inset-bottom: env(safe-area-inset-bottom, 0);
 }
+
 body {
-    margin: 0;
-    font-family: 'Segoe UI', Arial, sans-serif;
-    background: #f4f6f8;
-    color: var(--text-main);
-    }
-.conteneur {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-.section-services, .section-pharmacies {
-    max-width: 1100px;
-    margin: 0;
-    padding: 0 1rem;
+    background-color: var(--color-bg-page);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: var(--text-dark);
 }
+
+.conteneur {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+/* Titles */
 .section-title {
     font-size: 1.5rem;
-    color: #1e40af;
-    margin-bottom: 1rem;
-}
-.filtre-quartier {
+    font-weight: 700;
     margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
-.filtre-quartier select {
-    padding: 0.5rem 1rem;
+
+/* ================= FILTRES ================= */
+.filtres-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    background: #ffffff;
+    padding: 1.25rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.search-input-wrapper {
+    position: relative;
+}
+
+.search-input-wrapper .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+}
+
+.filter-group input, 
+.filter-group select {
+    width: 100%;
+    padding: 0.65rem 0.85rem;
+    border: 1px solid #cbd5e1;
     border-radius: 8px;
-    border: 1px solid #ccc;
-    font-size: 1rem;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s ease;
 }
+
+.search-input-wrapper input {
+    padding-left: 2.2rem;
+}
+
+.filter-group input:focus, 
+.filter-group select:focus {
+    border-color: #3b82f6;
+}
+
+.filter-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.btn-search, .btn-reset, .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1rem;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: transform 0.1s ease, opacity 0.2s;
+}
+
+.btn-search {
+    background-color: #1e40af;
+    color: #ffffff;
+    flex: 1;
+}
+
+.btn-reset {
+    background-color: #e2e8f0;
+    color: var(--text-dark);
+}
+
+.btn-primary {
+    background-color: #1e40af;
+    color: #ffffff;
+}
+
+/* ================= CARTES & COULEURS PAR TYPE ================= */
 .grid-cards {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
 }
+
 .card {
-    background: #fff;
-    border: 1px solid #e5e7eb;
     border-radius: 12px;
-    padding: 1rem 1.2rem;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    padding: 1.25rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    border-left: 6px solid #cbd5e1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s ease;
 }
+
+.card:hover {
+    transform: translateY(-3px);
+}
+
+.card-header {
+    margin-bottom: 0.5rem;
+}
+
+.card-type-badge, .badge-garde {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 0.25rem 0.6rem;
+    border-radius: 6px;
+}
+
 .card h3 {
-    margin: 0 0 0.4rem;
-    color: #1e40af;
+    font-size: 1.15rem;
+    margin: 0.4rem 0;
 }
-.card p {
-    margin: 0.2rem 0;
-    color: #374151;
-    font-size: 0.95rem;
+
+.card .quartier {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
 }
-.badge-garde {
-    display: inline-block;
-    background: #16a34a;
-    color: #fff;
-    font-size: 0.75rem;
-    padding: 0.15rem 0.6rem;
-    border-radius: 999px;
-    margin-bottom: 0.4rem;
-}
-.btn-primary {
-    display: inline-block;
-    background: #1e40af;
-    color: #fff;
-    padding: 0.7rem 1.4rem;
-    border-radius: 8px;
+
+.btn-call {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background-color: #1e293b;
+    color: #ffffff;
     text-decoration: none;
+    padding: 0.65rem;
+    border-radius: 8px;
     font-weight: 600;
-    margin-top: 1rem;
 }
-.btn-primary:hover {
-    background: #1d3a99;
+
+/* --- 1. PHARMACIE (Vert) --- */
+.card.type-pharmacie {
+    background-color: #f0fdf4;
+    border-left-color: var(--color-pharmacie);
 }
+.card.type-pharmacie .card-type-badge,
+.card.type-pharmacie .badge-garde {
+    background-color: #dcfce7;
+    color: var(--color-pharmacie);
+}
+
+/* --- 2. POMPIER (Rouge) --- */
+.card.type-pompier {
+    background-color: #fef2f2;
+    border-left-color: var(--color-pompier);
+}
+.card.type-pompier .card-type-badge {
+    background-color: #fee2e2;
+    color: var(--color-pompier);
+}
+
+/* --- 3. POLICE (Bleu) --- */
+.card.type-police {
+    background-color: #eff6ff;
+    border-left-color: var(--color-police);
+}
+.card.type-police .card-type-badge {
+    background-color: #dbeafe;
+    color: var(--color-police);
+}
+
+/* --- 4. HÔPITAL / AMBULANCE (Blanc) --- */
+.card.type-hopital {
+    background-color: var(--color-hopital);
+    border: 1px solid #e2e8f0;
+    border-left: 6px solid #64748b;
+}
+.card.type-hopital .card-type-badge {
+    background-color: #f1f5f9;
+    color: #475569;
+}
+
+/* ================= DIVERS ================= */
+.section-pharmacies {
+    margin-top: 3rem;
+}
+
+.pharmacies-more {
+    margin-top: 1.5rem;
+}
+
 .aucun-resultat {
-    color: #6b7280;
-    font-style: italic;
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: 12px;
+    text-align: center;
+    color: var(--text-muted);
+    font-weight: 500;
 }

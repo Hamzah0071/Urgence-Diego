@@ -2,8 +2,7 @@
 require_once '../includes/session.php';
 require_once '../includes/db_connect.php';
 
-// Récupère les articles, qu'ils soient écrits par un rédacteur
-// ou importés automatiquement depuis une source RSS.
+// Récupère les articles
 $stmt = $pdo->query("
     SELECT
         a.id_article,
@@ -22,6 +21,16 @@ $stmt = $pdo->query("
     LIMIT 50
 ");
 $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+/**
+ * Extrait la première image (URL src) du contenu HTML s'il y en a une
+ */
+function extraireImage($contenu) {
+    if (preg_match('/<img[^>]+src="([^"]+)"/i', $contenu, $matches)) {
+        return $matches[1];
+    }
+    return null;
+}
 
 function extraitTexte($texte, $longueur = 220) {
     $texte = trim(strip_tags($texte));
@@ -101,7 +110,30 @@ function formatDate($date) {
             border: 1px solid var(--border-color);
             border-radius: var(--radius);
             box-shadow: var(--shadow);
+            overflow: hidden; /* Empêche l'image d'avoir des coins pointus */
+            display: flex;
+            flex-direction: row;
+        }
+
+        /* Disposition de l'image de miniature */
+        .vignette-article {
+            width: 200px;
+            min-width: 200px;
+            background-color: #eef2f5;
+            position: relative;
+        }
+
+        .vignette-article img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Contenu du texte de l'article */
+        .contenu-carte {
             padding: 20px;
+            flex: 1;
         }
 
         .carte-article h2 {
@@ -162,6 +194,7 @@ function formatDate($date) {
             color: var(--primary);
             text-decoration: none;
         }
+
         .lien-article:hover {
             text-decoration: underline;
         }
@@ -173,11 +206,25 @@ function formatDate($date) {
             font-style: italic;
         }
 
+        /* Responsive Mobile */
         @media (max-width: 600px) {
             .conteneur { padding: 14px; }
             header.page-header { padding: 20px 10px 5px; }
             header.page-header h1 { font-size: 1.4rem; }
-            .carte-article { padding: 16px; }
+            
+            .carte-article { 
+                flex-direction: column; /* Empiler l'image au-dessus sur mobile */
+            }
+
+            .vignette-article {
+                width: 100%;
+                min-width: 100%;
+                height: 180px;
+            }
+
+            .contenu-carte {
+                padding: 16px;
+            }
         }
     </style>
 </head>
@@ -194,40 +241,44 @@ function formatDate($date) {
             <?php if (empty($articles)): ?>
                 <p class="empty-state">Aucun article disponible pour le moment.</p>
             <?php else: ?>
-                <?php foreach ($articles as $article): ?>
+                <?php foreach ($articles as $article): 
+                    $image = extraireImage($article['contenu']);
+                    $lienArticle = $article['lien_source'] ? htmlspecialchars($article['lien_source']) : "article.php?id=" . (int)$article['id_article'];
+                    $targetAttr = $article['lien_source'] ? 'target="_blank" rel="noopener noreferrer"' : '';
+                ?>
                     <article class="carte-article">
-                        <div class="meta-article">
-                            <span><?php echo formatDate($article['date_publication']); ?></span>
-                            <?php if ($article['nom_source']): ?>
-                                <span class="badge-source"><?php echo htmlspecialchars($article['nom_source']); ?></span>
-                            <?php elseif ($article['auteur_nom']): ?>
-                                <span class="badge-redaction">Rédaction — <?php echo htmlspecialchars($article['auteur_prenom'] . ' ' . $article['auteur_nom']); ?></span>
-                            <?php endif; ?>
+                        
+                        <?php if ($image): ?>
+                            <div class="vignette-article">
+                                <a href="<?php echo $lienArticle; ?>" <?php echo $targetAttr; ?>>
+                                    <img src="<?php echo htmlspecialchars($image); ?>" alt="<?php echo htmlspecialchars($article['titre']); ?>" loading="lazy">
+                                </a>
+                            </div>
+                        <?php endif; ?>
+
+                        <div class="contenu-carte">
+                            <div class="meta-article">
+                                <span><?php echo formatDate($article['date_publication']); ?></span>
+                                <?php if ($article['nom_source']): ?>
+                                    <span class="badge-source"><?php echo htmlspecialchars($article['nom_source']); ?></span>
+                                <?php elseif ($article['auteur_nom']): ?>
+                                    <span class="badge-redaction">Rédaction — <?php echo htmlspecialchars($article['auteur_prenom'] . ' ' . $article['auteur_nom']); ?></span>
+                                <?php endif; ?>
+                            </div>
+
+                            <h2>
+                                <a href="<?php echo $lienArticle; ?>" <?php echo $targetAttr; ?>>
+                                    <?php echo htmlspecialchars($article['titre']); ?>
+                                </a>
+                            </h2>
+
+                            <p class="extrait-article"><?php echo extraitTexte($article['contenu']); ?></p>
+
+                            <a class="lien-article" href="<?php echo $lienArticle; ?>" <?php echo $targetAttr; ?>>
+                                <?php echo $article['lien_source'] ? "Lire l'article complet sur le site source →" : "Lire l'article complet →"; ?>
+                            </a>
                         </div>
 
-                        <h2>
-                            <?php if ($article['lien_source']): ?>
-                                <a href="<?php echo htmlspecialchars($article['lien_source']); ?>" target="_blank" rel="noopener noreferrer">
-                                    <?php echo htmlspecialchars($article['titre']); ?>
-                                </a>
-                            <?php else: ?>
-                                <a href="article.php?id=<?php echo (int)$article['id_article']; ?>">
-                                    <?php echo htmlspecialchars($article['titre']); ?>
-                                </a>
-                            <?php endif; ?>
-                        </h2>
-
-                        <p class="extrait-article"><?php echo extraitTexte($article['contenu']); ?></p>
-
-                        <?php if ($article['lien_source']): ?>
-                            <a class="lien-article" href="<?php echo htmlspecialchars($article['lien_source']); ?>" target="_blank" rel="noopener noreferrer">
-                                Lire l'article complet sur le site source →
-                            </a>
-                        <?php else: ?>
-                            <a class="lien-article" href="article.php?id=<?php echo (int)$article['id_article']; ?>">
-                                Lire l'article complet →
-                            </a>
-                        <?php endif; ?>
                     </article>
                 <?php endforeach; ?>
             <?php endif; ?>
