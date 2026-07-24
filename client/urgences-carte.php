@@ -1,6 +1,7 @@
 <?php
 require_once '../includes/session.php';
 require_once '../includes/db_connect.php';
+require_once '../includes/fonction.php';
 
 /*
  * Basé sur votre schéma réel :

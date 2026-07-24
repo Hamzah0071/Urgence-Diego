@@ -10,6 +10,7 @@
 
 require_once '../includes/admin_session.php';
 require_once '../includes/db_connect.php';
+require_once '../includes/fonction.php';
 
 $erreur = '';
 $succes = '';

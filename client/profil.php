@@ -1,5 +1,8 @@
 <?php
 require_once '../includes/session.php';
+require_once '../includes/db_connect.php';
+require_once '../includes/fonction.php';
+
 // session.php redirige déjà vers login.php si non connecté,
 // et fournit $pdo (via db_connect.php) ainsi que $_SESSION['id_utilisateur'].
 

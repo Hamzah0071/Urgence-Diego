@@ -1,6 +1,7 @@
 <?php
 require_once '../includes/session.php';
 require_once '../includes/db_connect.php';
+require_once '../includes/fonction.php';
 
 // --- Récupération des filtres (GET) ---
 $id_quartier   = $_GET['id_quartier'] ?? null;
@@ -53,6 +54,47 @@ function getServiceTypeMeta($nomType) {
 <?php include '../includes/header.php' ?>
 
     <div class="conteneur">
+        <!-- SECTION : Pharmacie de garde -->
+        <section class="section-pharmacies">
+            <h2 class="section-title">
+                <i class="fa-solid fa-house-medical-flag"></i> Pharmacie de garde aujourd'hui
+            </h2>
+            
+            <?php if ($pharmacieGarde): ?>
+                <div class="grid-cards">
+                    <div class="card type-pharmacie garde-card">
+                        <div class="card-header">
+                            <span class="badge-garde">
+                                <i class="fa-solid fa-clock-rotate-left"></i> De garde aujourd'hui
+                            </span>
+                        </div>
+                        <h3><?= htmlspecialchars($pharmacieGarde['nom_service']) ?></h3>
+                        <p class="quartier">
+                            <i class="fa-solid fa-location-dot"></i> <?= htmlspecialchars($pharmacieGarde['nom_quartier']) ?>
+                        </p>
+                        <?php if (!empty($pharmacieGarde['numero_telephone'])): ?>
+                            <div class="card-call">
+                                <a href="tel:<?= htmlspecialchars(str_replace(' ', '', $pharmacieGarde['numero_telephone'])) ?>" class="btn-call">
+                                    <i class="fa-solid fa-phone"></i> <?= htmlspecialchars($pharmacieGarde['numero_telephone']) ?>
+                                </a>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            <?php else: ?>
+                <p class="aucun-resultat">
+                    <i class="fa-solid fa-circle-info"></i> Aucune pharmacie de garde enregistrée pour aujourd'hui.
+                </p>
+            <?php endif; ?>
+            
+            <div class="pharmacies-more">
+                <a href="./urgences-carte.php" class="btn-primary">
+                    <i class="fa-solid fa-map"></i> Voir sur une mapes
+                </a>
+            </div>
+        </section>
+
+
         <!-- SECTION : Recherche et Filtres -->
         <section class="section-services">
             <h2 class="section-title">
@@ -144,45 +186,7 @@ function getServiceTypeMeta($nomType) {
             <?php endif; ?>
         </section>
             
-        <!-- SECTION : Pharmacie de garde -->
-        <section class="section-pharmacies">
-            <h2 class="section-title">
-                <i class="fa-solid fa-house-medical-flag"></i> Pharmacie de garde aujourd'hui
-            </h2>
-            
-            <?php if ($pharmacieGarde): ?>
-                <div class="grid-cards">
-                    <div class="card type-pharmacie garde-card">
-                        <div class="card-header">
-                            <span class="badge-garde">
-                                <i class="fa-solid fa-clock-rotate-left"></i> De garde aujourd'hui
-                            </span>
-                        </div>
-                        <h3><?= htmlspecialchars($pharmacieGarde['nom_service']) ?></h3>
-                        <p class="quartier">
-                            <i class="fa-solid fa-location-dot"></i> <?= htmlspecialchars($pharmacieGarde['nom_quartier']) ?>
-                        </p>
-                        <?php if (!empty($pharmacieGarde['numero_telephone'])): ?>
-                            <div class="card-call">
-                                <a href="tel:<?= htmlspecialchars(str_replace(' ', '', $pharmacieGarde['numero_telephone'])) ?>" class="btn-call">
-                                    <i class="fa-solid fa-phone"></i> <?= htmlspecialchars($pharmacieGarde['numero_telephone']) ?>
-                                </a>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            <?php else: ?>
-                <p class="aucun-resultat">
-                    <i class="fa-solid fa-circle-info"></i> Aucune pharmacie de garde enregistrée pour aujourd'hui.
-                </p>
-            <?php endif; ?>
-            
-            <div class="pharmacies-more">
-                <a href="pharmacies.php" class="btn-primary">
-                    <i class="fa-solid fa-prescription-bottle-medical"></i> Voir toutes les pharmacies
-                </a>
-            </div>
-        </section>
+        
     </div>
 
 </body>

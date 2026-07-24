@@ -26,6 +26,7 @@ if (!$est_cli) {
     require_once '../includes/admin_session.php';
 } else {
     require_once __DIR__ . '/../includes/db_connect.php';
+    require_once __DIR__ . '/../includes/fonction.php';
 }
 
 /* -------------------------------------------------------------

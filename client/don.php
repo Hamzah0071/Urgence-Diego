@@ -1,4 +1,8 @@
 <?php
+require_once '../includes/session.php';
+require_once '../includes/db_connect.php';
+require_once '../includes/fonction.php';
+
 $page_css = "../asset/css/client/don.css";
 include "../includes/header.php";
 ?>

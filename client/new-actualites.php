@@ -18,6 +18,8 @@
  */
 
 require_once '../includes/session.php';
+require_once '../includes/db_connect.php';
+require_once '../includes/fonction.php';
 // session.php redirige déjà vers login.php si non connecté, connecte $pdo,
 // et pose $_SESSION['id_role'].
 
