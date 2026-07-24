@@ -28,4 +28,10 @@ if (!$user) {
 
 // Variable disponible dans toutes les pages client
 $current_user = $user;
+
+// On garde aussi le rôle directement en session : ainsi header.php (et
+// n'importe quelle autre page) n'a besoin que de lire $_SESSION['id_role']
+// pour savoir quoi afficher, sans refaire de requête ni de logique métier.
+$_SESSION['id_role']  = $user['id_role'];
+$_SESSION['nom_role'] = $user['nom_role'];
 ?>

@@ -1,7 +1,7 @@
 <?php
 require_once '../includes/session.php';
 require_once '../includes/db_connect.php';
-
+ 
 // ===================================================
 // 1) PHARMACIE(S) DE GARDE DU JOUR
 // ===================================================

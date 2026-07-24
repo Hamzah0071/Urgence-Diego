@@ -1,6 +1,12 @@
 <?php
 require_once __DIR__ . '/session.php';
 $current_page = basename($_SERVER['PHP_SELF']);
+
+// Rôle de l'utilisateur connecté (2 = Redacteur, d'après la table `role`)
+// posé par session.php dans $_SESSION['id_role'] : le header se contente
+// de le lire pour savoir quel menu afficher, sans logique supplémentaire.
+$id_role = $_SESSION['id_role'] ?? null;
+$est_redacteur = ((int) $id_role === 2);
 ?>
 
 <!DOCTYPE html>
@@ -316,6 +322,15 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 <a href="../client/home.php" class="<?= $current_page === 'accueil.php' ? 'active' : '' ?>">
                     <i class="fa-solid fa-house"></i> Accueil
                 </a>
+
+                <!-- Ce lien n'est visible que pour le rôle Redacteur (id_role = 2) -->
+                <?php if ($est_redacteur): ?>
+                <a href="../client/new-actualites.php" class="<?= $current_page === 'new-actualites.php' ? 'active' : '' ?>">
+                    <i class="fa-solid fa-pen-fancy"></i> Publier
+                </a>
+                <?php endif; ?>
+
+                <!-- ne change pas  -->
                 <a href="../client/actualites.php" class="<?= $current_page === 'actualites.php' ? 'active' : '' ?>">
                     <i class="fa-solid fa-newspaper"></i> Articles
                 </a>
