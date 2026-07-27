@@ -1,0 +1,9 @@
+# Désactiver le listage des répertoires
+Options -Indexes
+
+# Rediriger tout le trafic vers le dossier public
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^$ public/ [L]
+    RewriteRule (.*) public/$1 [L]
+</IfModule>

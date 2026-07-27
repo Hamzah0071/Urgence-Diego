@@ -1,0 +1,5 @@
+RewriteEngine On
+
+# Tout ce qui arrive à la racine du projet est renvoyé vers /public/
+RewriteCond %{REQUEST_URI} !^/public/
+RewriteRule ^(.*)$ public/$1 [L]

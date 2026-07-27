@@ -1,0 +1,13 @@
+# Désactiver le listage des répertoires
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Si le fichier ou dossier existe, on le sert directement (pour les assets)
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+
+    # Sinon, on envoie tout vers index.php
+    RewriteRule ^(.*)$ index.php?action=$1 [QSA,L]
+</IfModule>
