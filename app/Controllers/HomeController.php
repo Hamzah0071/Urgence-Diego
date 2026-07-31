@@ -12,14 +12,7 @@ use PDOException;
 require_once __DIR__ . '/../Models/Article.php';
 require_once __DIR__ . '/../Models/Service.php';
 require_once __DIR__ . '/../Models/Quartier.php';
-require_once __DIR__ . '/../Models/User.php';
 
-/**
- * HomeController
- * -------------------------------------------------------------
- * Pages publiques + espace client (redacteur / visiteur connecté)
- * -------------------------------------------------------------
- */
 class HomeController
 {
     private PDO $pdo;
@@ -67,6 +60,31 @@ class HomeController
 
         $this->render('actualites', [
             'articles' => $articleModel->getPublies(50),
+        ]);
+    }
+
+    /* =============================================================
+     * DÉTAIL D'UN ARTICLE
+     * ============================================================= */
+    public function articleDetail(): void
+    {
+        $id = (int)($_GET['id'] ?? 0);
+
+        if ($id <= 0) {
+            $this->pageIntrouvable();
+            return;
+        }
+
+        $articleModel = new Article($this->pdo);
+        $article = $articleModel->getById($id);
+
+        if (!$article) {
+            $this->pageIntrouvable();
+            return;
+        }
+
+        $this->render('article-detail', [
+            'article' => $article,
         ]);
     }
 
@@ -280,5 +298,14 @@ class HomeController
     {
         extract($data);
         require __DIR__ . '/../Views/client/' . $vue . '.php';
+    }
+
+    /* =============================================================
+     * Page 404 générique
+     * ============================================================= */
+    private function pageIntrouvable(): void
+    {
+        http_response_code(404);
+        echo 'Page introuvable.';
     }
 }

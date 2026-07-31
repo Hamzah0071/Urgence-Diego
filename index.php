@@ -1,8 +1,8 @@
 <?php
 /**
  * Fichier de redirection de sécurité.
- * Empêche l'accès à la structure des dossiers si l'utilisateur
- * pointe directement sur la racine du projet.
+ * Redirige vers le dossier public tout en conservant les paramètres GET.
  */
-header('Location: public/');
+$queryString = $_SERVER['QUERY_STRING'] ? '?' . $_SERVER['QUERY_STRING'] : '';
+header('Location: public/index.php' . $queryString);
 exit;

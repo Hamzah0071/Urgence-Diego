@@ -6,91 +6,89 @@
             <header>
                 <h1>Gestion des Sources d'Articles</h1>
                 <p>Ajouter, modifier ou supprimer les chaînes TV / réseaux sociaux utilisés pour alimenter les actualités du site.</p>
-                <a href="index.php?action=admin-import-articles" class="btn-primary" style="text-decoration:none; display:inline-block;">
+                <a href="index.php?action=admin-import-articles" class="btn-primary" style="text-decoration:none; display:inline-block; background: #1e40af; color: #fff; padding: 10px 15px; border-radius: 5px;">
                     <i class="fa-solid fa-arrows-rotate"></i> Actualiser les articles maintenant
                 </a>
             </header>
 
-            <?php if ($erreur): ?><div class="alert erreur"><?php echo htmlspecialchars($erreur); ?></div><?php endif; ?>
-            <?php if ($succes): ?><div class="alert success"><?php echo htmlspecialchars($succes); ?></div><?php endif; ?>
+            <?php 
+            if (isset($_GET['import_done'])): 
+                $res = $_SESSION['import_result'] ?? ['count' => 0, 'errors' => []];
+                unset($_SESSION['import_result']);
+            ?>
+                <div class="alert success" style="background: #dcfce7; color: #166534; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                    Importation terminée : <strong><?= $res['count'] ?></strong> nouveaux articles ajoutés.
+                    <?php if (!empty($res['errors'])): ?>
+                        <ul style="margin-top: 10px; font-size: 0.85rem;">
+                            <?php foreach ($res['errors'] as $err): ?><li><?= htmlspecialchars($err) ?></li><?php endforeach; ?>
+                        </ul>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
+
+            <?php if ($erreur): ?><div class="alert erreur" style="background: #fee2e2; color: #991b1b; padding: 15px; border-radius: 5px; margin: 20px 0;"><?php echo htmlspecialchars($erreur); ?></div><?php endif; ?>
+            <?php if ($succes): ?><div class="alert success" style="background: #dcfce7; color: #166534; padding: 15px; border-radius: 5px; margin: 20px 0;"><?php echo htmlspecialchars($succes); ?></div><?php endif; ?>
 
             <!-- Formulaire d'ajout -->
-            <section class="add-pharmacy-section">
+            <section class="add-pharmacy-section" style="background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 30px;">
+                <h2 style="margin-bottom: 20px;">Ajouter une nouvelle source</h2>
                 <form method="post" action="index.php?action=admin-articles" id="form-reseau_social">
                     <input type="hidden" name="action" value="ajouter">
 
-                    <div class="form-grid">
+                    <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                         <div class="form-group">
-                            <label for="nom_source_reseau">Nom de la chaîne</label>
-                            <input type="text" id="nom_source_reseau" name="nom_source" placeholder="Ex : TVM - Télévision Malagasy" required>
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">Nom de la chaîne</label>
+                            <input type="text" name="nom_source" placeholder="Ex : TVM - Télévision Malagasy" required style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 5px;">
                         </div>
 
-                        <div class="form-group full-width">
-                            <label for="url_flux_reseau">URL du flux (déjà générée)</label>
-                            <input type="url" id="url_flux_reseau" name="url_flux" placeholder="https://rss.app/feeds/xxxxx.xml" required>
-                            <p class="note">
-                                Cette chaîne n'a pas de RSS natif : génère l'URL de son flux avec un outil externe
-                                comme <strong>rss.app</strong> (rapide, sans hébergement) ou une instance
-                                <strong>RSS-Bridge</strong> auto-hébergée, à partir de sa page Facebook publique.
-                                Colle ici l'URL du flux déjà générée.
-                            </p>
+                        <div class="form-group">
+                            <label style="display: block; margin-bottom: 5px; font-weight: 600;">URL du flux RSS</label>
+                            <input type="url" name="url_flux" placeholder="https://rss.app/feeds/xxxxx.xml" required style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 5px;">
                         </div>
                     </div>
 
-                    <button type="submit" class="btn-primary mt-30">Ajouter la chaîne</button>
+                    <button type="submit" class="btn-primary" style="margin-top: 20px; background: #1e40af; color: #fff; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Ajouter la chaîne</button>
                 </form>
             </section>
 
             <!-- Liste des sources -->
-            <section class="pharmacy-list-section">
+            <section class="pharmacy-list-section" style="background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
                 <h2>Sources actuelles</h2>
 
                 <?php if (empty($sources)): ?>
-                    <p class="empty-state">Aucune source enregistrée pour le moment.</p>
+                    <p class="empty-state" style="padding: 20px; text-align: center; color: #64748b;">Aucune source enregistrée pour le moment.</p>
                 <?php else: ?>
-                    <div class="table-scroll">
-                        <table>
+                    <div class="table-scroll" style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
                             <thead>
-                                <tr>
-                                    <th>Nom</th>
-                                    <th>URL du flux</th>
-                                    <th>Statut</th>
-                                    <th class="actions-cell">Actions</th>
+                                <tr style="text-align: left; border-bottom: 2px solid #e2e8f0;">
+                                    <th style="padding: 12px;">Nom</th>
+                                    <th style="padding: 12px;">URL du flux</th>
+                                    <th style="padding: 12px;">Statut</th>
+                                    <th style="padding: 12px;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php foreach ($sources as $s): ?>
-                                <tr>
-                                    <td data-label="Nom"><?php echo htmlspecialchars($s['nom_source']); ?></td>
-                                    <td data-label="URL du flux" style="word-break:break-all;"><?php echo htmlspecialchars($s['url_flux']); ?></td>
-                                    <td data-label="Statut">
-                                        <?php if ($s['actif']): ?>
-                                            <span class="etat-actif">Actif</span>
-                                        <?php else: ?>
-                                            <span class="etat-inactif">Inactif</span>
-                                        <?php endif; ?>
+                                <tr style="border-bottom: 1px solid #e2e8f0;">
+                                    <td style="padding: 12px;"><?php echo htmlspecialchars($s['nom_source']); ?></td>
+                                    <td style="padding: 12px; font-size: 0.8rem; color: #64748b;"><?php echo htmlspecialchars($s['url_flux']); ?></td>
+                                    <td style="padding: 12px;">
+                                        <span style="color: <?= $s['actif'] ? '#166534' : '#991b1b' ?>; font-weight: 600;">
+                                            <?= $s['actif'] ? 'Actif' : 'Inactif' ?>
+                                        </span>
                                     </td>
-                                    <td class="actions-cell" data-label="Actions">
-                                        <button
-                                            type="button"
-                                            class="edit-btn"
-                                            data-id_source="<?php echo htmlspecialchars($s['id_source']); ?>"
-                                            data-nom_source="<?php echo htmlspecialchars($s['nom_source']); ?>"
-                                            data-url_flux="<?php echo htmlspecialchars($s['url_flux']); ?>"
-                                        >
-                                            Modifier
-                                        </button>
-
-                                        <form method="post" action="index.php?action=admin-articles" class="inline-form">
+                                    <td style="padding: 12px; display: flex; gap: 5px;">
+                                        <form method="post" action="index.php?action=admin-articles">
                                             <input type="hidden" name="action" value="toggle">
                                             <input type="hidden" name="id_source" value="<?php echo (int)$s['id_source']; ?>">
-                                            <button type="submit" class="btn-toggle"><?php echo $s['actif'] ? 'Désactiver' : 'Activer'; ?></button>
+                                            <button type="submit" style="padding: 5px 10px; border-radius: 5px; border: 1px solid #e2e8f0; background: #f8fafc; cursor: pointer;"><?php echo $s['actif'] ? 'Désactiver' : 'Activer'; ?></button>
                                         </form>
 
-                                        <form method="post" action="index.php?action=admin-articles" class="inline-form" onsubmit="return confirm('Supprimer cette source ?');">
+                                        <form method="post" action="index.php?action=admin-articles" onsubmit="return confirm('Supprimer cette source ?');">
                                             <input type="hidden" name="action" value="supprimer">
                                             <input type="hidden" name="id_source" value="<?php echo (int)$s['id_source']; ?>">
-                                            <button type="submit" class="btn-danger">Supprimer</button>
+                                            <button type="submit" style="padding: 5px 10px; border-radius: 5px; border: none; background: #fee2e2; color: #991b1b; cursor: pointer;">Supprimer</button>
                                         </form>
                                     </td>
                                 </tr>
@@ -103,201 +101,3 @@
         </div>
     </div>
 </main>
-
-<!-- Modal de modification -->
-<div id="editSourceModal" class="modal">
-    <div class="modal-content">
-        <span class="close-button">&times;</span>
-        <h2>Modifier la source</h2>
-
-        <form method="post" action="index.php?action=admin-articles">
-            <input type="hidden" name="action" value="modifier">
-            <input type="hidden" id="edit_id_source" name="id_source">
-
-            <div class="form-grid">
-                <div class="form-group">
-                    <label for="edit_nom_source">Nom de la source</label>
-                    <input type="text" id="edit_nom_source" name="nom_source" required>
-                </div>
-                <div class="form-group">
-                    <label for="edit_url_flux">URL du flux</label>
-                    <input type="url" id="edit_url_flux" name="url_flux" required>
-                </div>
-            </div>
-
-            <button type="submit" class="btn-primary mt-30">Enregistrer les modifications</button>
-        </form>
-    </div>
-</div>
-
-<style>
-    :root {
-        --primary: #2c7a7b;
-        --primary-dark: #1f5b5c;
-        --danger: #e74c3c;
-        --danger-dark: #c0392b;
-        --success-bg: #d4edda;
-        --success-text: #155724;
-        --success-border: #c3e6cb;
-        --erreur-bg: #fdecea;
-        --erreur-text: #a12b2b;
-        --border-color: #dcdfe3;
-        --text-main: #2d3436;
-        --text-muted: #6b7280;
-        --radius: 8px;
-        --shadow: 0 2px 10px rgba(0,0,0,0.08);
-        --shadow-lg: 0 10px 30px rgba(0,0,0,0.2);
-    }
-
-    .admin-content { width: 100%; max-width: 1100px; margin: 0 auto; padding: 20px; box-sizing: border-box; color: var(--text-main); }
-    .admin-container, .add-pharmacy-section, .pharmacy-list-section { box-sizing: border-box; }
-    .admin-content header h1 { margin: 0 0 5px; font-size: 1.8rem; }
-    .admin-content header p { margin: 0 0 25px; color: var(--text-muted); }
-
-    .alert { padding: 14px 18px; margin-bottom: 20px; border-radius: var(--radius); font-weight: 600; border: 1px solid transparent; }
-    .alert.success { background-color: var(--success-bg); color: var(--success-text); border-color: var(--success-border); }
-    .alert.erreur { background-color: var(--erreur-bg); color: var(--erreur-text); border-color: #f5c6cb; }
-
-    .add-pharmacy-section, .pharmacy-list-section {
-        background: #fff; border: 1px solid var(--border-color); border-radius: var(--radius);
-        box-shadow: var(--shadow); padding: 25px; margin-bottom: 30px;
-    }
-    .pharmacy-list-section h2 { margin-top: 0; margin-bottom: 20px; font-size: 1.3rem; border-bottom: 2px solid var(--primary); padding-bottom: 10px; }
-    .empty-state { color: var(--text-muted); font-style: italic; }
-
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    .form-group { display: flex; flex-direction: column; }
-    .form-group label { margin-bottom: 6px; font-weight: 600; font-size: 0.9rem; color: var(--text-main); }
-    .form-group input, .form-group select, .form-group textarea {
-        padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 6px; width: 100%;
-        font-size: 0.95rem; font-family: inherit; transition: border-color 0.15s ease, box-shadow 0.15s ease;
-    }
-    .form-group input:focus, .form-group select:focus {
-        outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(44, 122, 123, 0.15);
-    }
-    .full-width { grid-column: 1 / -1; }
-    .note { font-size: 13px; color: var(--text-muted); margin-top: 6px; }
-
-    .btn-primary {
-        display: inline-block; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer;
-        font-weight: 600; font-size: 0.9rem; background-color: var(--primary); color: #fff;
-        transition: background-color 0.15s ease, transform 0.05s ease;
-    }
-    .btn-primary:hover { background-color: var(--primary-dark); }
-    .btn-primary:active { transform: scale(0.97); }
-
-    .btn-danger {
-        border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem;
-        background-color: var(--danger); color: white; transition: background-color 0.15s ease, transform 0.05s ease;
-    }
-    .btn-danger:hover { background-color: var(--danger-dark); }
-    .btn-danger:active { transform: scale(0.97); }
-
-    .btn-toggle {
-        border: 1px solid var(--border-color); background: #f3f4f6; color: var(--text-main);
-        padding: 8px 14px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem;
-        transition: background-color 0.15s ease, transform 0.05s ease;
-    }
-    .btn-toggle:hover { background-color: #e5e7eb; }
-    .btn-toggle:active { transform: scale(0.97); }
-
-    .edit-btn {
-        background-color: var(--primary); color: #fff; border: none; padding: 8px 14px; border-radius: 6px;
-        cursor: pointer; font-weight: 600; font-size: 0.85rem; margin-right: 6px;
-        transition: background-color 0.15s ease, transform 0.05s ease;
-    }
-    .edit-btn:hover { background-color: var(--primary-dark); }
-    .edit-btn:active { transform: scale(0.97); }
-
-    .inline-form { display: inline-block; }
-    .mt-30 { margin-top: 30px; }
-
-    .etat-actif { color: #1a7a2e; font-weight: 700; }
-    .etat-inactif { color: #a12b2b; font-weight: 700; }
-
-    .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid var(--border-color); border-radius: var(--radius); }
-    .table-scroll table { min-width: 640px; width: 100%; border-collapse: collapse; }
-    .table-scroll th, .table-scroll td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border-color); font-size: 0.9rem; vertical-align: top; }
-    .table-scroll th { background-color: #f7f8f9; font-weight: 700; color: var(--text-main); text-transform: uppercase; font-size: 0.78rem; letter-spacing: 0.03em; }
-    .table-scroll tbody tr:hover { background-color: #fafbfc; }
-    .table-scroll tbody tr:last-child td { border-bottom: none; }
-    .actions-cell { white-space: nowrap; }
-
-    @media (max-width: 900px) {
-        .admin-content { padding: 16px; }
-        .add-pharmacy-section, .pharmacy-list-section { padding: 20px; }
-        .form-grid { grid-template-columns: 1fr 1fr; gap: 14px; }
-    }
-    @media (max-width: 700px) {
-        .form-grid { grid-template-columns: 1fr; }
-        .admin-content header h1 { font-size: 1.5rem; }
-    }
-    @media (max-width: 600px) {
-        .admin-content { padding: 12px; }
-        .add-pharmacy-section, .pharmacy-list-section { padding: 16px; margin-bottom: 20px; }
-        .btn-primary { width: 100%; }
-
-        .table-scroll { overflow-x: visible; border: none; border-radius: 0; }
-        .table-scroll table { min-width: 0; width: 100%; }
-        .table-scroll thead { display: none; }
-        .table-scroll tbody, .table-scroll tr, .table-scroll td { display: block; width: 100%; }
-        .table-scroll tr {
-            background: #fff; border: 1px solid var(--border-color); border-radius: var(--radius);
-            margin-bottom: 14px; padding: 10px 14px; box-shadow: var(--shadow);
-        }
-        .table-scroll td {
-            border-bottom: 1px solid #eee; padding: 10px 0; display: flex; justify-content: space-between;
-            align-items: flex-start; gap: 12px; text-align: right;
-        }
-        .table-scroll td:last-child { border-bottom: none; }
-        .table-scroll td::before {
-            content: attr(data-label); font-weight: 700; font-size: 0.78rem; text-transform: uppercase;
-            letter-spacing: 0.03em; color: var(--text-muted); text-align: left; flex-shrink: 0;
-        }
-        .actions-cell { flex-direction: column; align-items: stretch !important; gap: 8px !important; }
-        .actions-cell::before { margin-bottom: 4px; }
-        .edit-btn, .btn-toggle, .inline-form, .inline-form .btn-danger { width: 100%; }
-        .inline-form { display: block; }
-    }
-
-    .modal {
-        display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
-        overflow: auto; background-color: rgba(0,0,0,0.45);
-    }
-    .modal-content {
-        background-color: #fefefe; margin: 6% auto; padding: 30px; border: none; width: 90%; max-width: 700px;
-        max-height: 85vh; overflow-y: auto; border-radius: 10px; position: relative; box-shadow: var(--shadow-lg);
-        box-sizing: border-box;
-    }
-    @media (max-width: 600px) {
-        .modal-content { width: 100%; max-width: 100%; height: 100%; max-height: 100%; margin: 0; border-radius: 0; padding: 20px; }
-        .modal-content .form-grid { grid-template-columns: 1fr; }
-    }
-    .modal-content h2 { margin-top: 0; border-bottom: 2px solid var(--primary); padding-bottom: 10px; }
-    .close-button {
-        color: #aaa; float: right; font-size: 28px; font-weight: bold; position: absolute; top: 10px; right: 20px;
-        line-height: 1; cursor: pointer;
-    }
-    .close-button:hover, .close-button:focus { color: var(--danger); text-decoration: none; }
-</style>
-
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    var modal = document.getElementById("editSourceModal");
-    var closeBtn = document.querySelector('.close-button');
-
-    document.querySelectorAll('.edit-btn').forEach(function (button) {
-        button.addEventListener('click', function () {
-            document.getElementById('edit_id_source').value = this.dataset.id_source;
-            document.getElementById('edit_nom_source').value = this.dataset.nom_source;
-            document.getElementById('edit_url_flux').value = this.dataset.url_flux;
-            modal.style.display = "block";
-        });
-    });
-
-    closeBtn.onclick = function () { modal.style.display = "none"; };
-    window.onclick = function (event) {
-        if (event.target === modal) { modal.style.display = "none"; }
-    };
-});
-</script>

@@ -15,9 +15,11 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once __DIR__ . '/../app/includes/session.php';
 require_once __DIR__ . '/../app/Controllers/HomeController.php';
 require_once __DIR__ . '/../app/Controllers/AuthController.php';
+require_once __DIR__ . '/../app/Controllers/AdminController.php';
 
 use App\Controllers\HomeController;
 use App\Controllers\AuthController;
+use App\Controllers\AdminController;
 
 // Connexion à la base de données
 $pdo = require __DIR__ . '/../config/database.php';
@@ -27,19 +29,16 @@ $action = $_GET['action'] ?? 'landing';
 
 // Définition des routes par catégorie
 $routesInvites   = ['landing', 'login', 'register'];
-$routesProtegees = ['home', 'actualites', 'don', 'profil', 'service-urgence', 'urgence-carte', 'new-article'];
-$routesAdmin     = ['admin-dashboard', 'admin-articles', 'admin-services', 'admin-utilisateurs'];
+$routesProtegees = ['home', 'actualites', 'article-detail', 'don', 'profil', 'service-urgence', 'urgence-carte', 'new-article'];
+$routesAdmin     = ['admin-dashboard', 'admin-articles', 'admin-import-articles', 'admin-services', 'admin-utilisateurs'];
 
 // --- SYSTÈME DE GARDES (SÉCURITÉ) ---
 
 if (in_array($action, $routesInvites, true)) {
-    // Si on est sur login/register mais déjà connecté, on redirige vers home
     requireGuest();
 } elseif (in_array($action, $routesProtegees, true)) {
-    // Si on accède à une page protégée, on vérifie l'auth
     requireAuth($pdo);
 } elseif (in_array($action, $routesAdmin, true)) {
-    // Si on accède à l'admin, on vérifie le rôle Admin
     requireAdmin($pdo);
 }
 
@@ -64,13 +63,17 @@ switch ($action) {
         (new AuthController($pdo))->logout();
         break;
 
-    // --- Client connecté (déjà filtré par requireAuth) ---
+    // --- Client connecté ---
     case 'home':
         (new HomeController($pdo))->home();
         break;
 
     case 'actualites':
         (new HomeController($pdo))->actualites();
+        break;
+
+    case 'article-detail':
+        (new HomeController($pdo))->articleDetail();
         break;
 
     case 'don':
@@ -93,13 +96,25 @@ switch ($action) {
         (new HomeController($pdo))->newArticle();
         break;
 
-    // --- Admin (déjà filtré par requireAdmin) ---
+    // --- Admin ---
     case 'admin-dashboard':
+        (new AdminController($pdo))->dashboard();
+        break;
+
     case 'admin-articles':
+        (new AdminController($pdo))->articles();
+        break;
+
+    case 'admin-import-articles':
+        (new AdminController($pdo))->importArticles();
+        break;
+
     case 'admin-services':
+        (new AdminController($pdo))->services();
+        break;
+
     case 'admin-utilisateurs':
-        http_response_code(501);
-        echo 'Espace admin en cours de construction.';
+        (new AdminController($pdo))->dashboard();
         break;
 
     default:

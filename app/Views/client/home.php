@@ -14,7 +14,440 @@
 <body>
 <?php require __DIR__ . '/../includes/header.php'; ?>
 <main>
+<style>
+    :root {
+    --ink: #1c231e;
+    --paper: #f6f4ee;
+    --navy: #3b82f6;
+    --navy-dk: #1e3a8a;
+    --red-urgency: #dc2626;
+    --red-hover: #b91c1c;
+    --sage: #eef1f6;
+    --line: #cfd6e2;
+    --radius: 16px;
+    
+    /* Couleurs de cartes d'urgence */
+    --pompier-color: #d97706;
+    --police-color: #1d4ed8;
+    --ambulance-color: #dc2626;
+}
 
+/* Base page */
+body {
+    background-color: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    margin: 0;
+}
+
+main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px 20px 60px 20px;
+}
+
+/* Common Buttons */
+.btn-danger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--red-urgency);
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 15px;
+    padding: 12px 24px;
+    border-radius: 30px;
+    text-decoration: none;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
+}
+
+.btn-danger:hover {
+    background-color: var(--red-hover);
+    transform: translateY(-2px);
+}
+
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--navy-dk);
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 10px 22px;
+    border-radius: 20px;
+    text-decoration: none;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.btn-primary:hover {
+    background-color: var(--navy);
+    transform: translateY(-2px);
+}
+
+.btn-call {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background-color: var(--sage);
+    color: var(--navy-dk);
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 10px 18px;
+    border-radius: 12px;
+    text-decoration: none;
+    border: 1px solid var(--line);
+    transition: all 0.2s ease;
+}
+
+.btn-call:hover {
+    background-color: var(--navy-dk);
+    color: #ffffff;
+    border-color: var(--navy-dk);
+}
+
+/* ================= 1. HERO SECTION ================= */
+.hero {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: center;
+    padding: 40px 0 60px 0;
+}
+
+.hero-content h1 {
+    font-family: 'Fraunces', serif;
+    font-size: 42px;
+    line-height: 1.15;
+    color: var(--navy-dk);
+    margin: 0 0 16px 0;
+}
+
+.hero-content p {
+    font-size: 17px;
+    line-height: 1.6;
+    color: #475569;
+    margin: 0 0 28px 0;
+}
+
+.hero-image {
+    width: 100%;
+    height: 320px;
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.hero-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* ================= 2. SERVICES D'URGENCE ================= */
+.services {
+    padding: 40px 0;
+}
+
+.services h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 28px;
+    color: var(--navy-dk);
+    margin-bottom: 24px;
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+}
+
+.card {
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.06);
+}
+
+.card-top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+}
+
+.card.ambulance .card-top { background-color: var(--ambulance-color); }
+.card.pompier .card-top { background-color: var(--pompier-color); }
+.card.police .card-top { background-color: var(--police-color); }
+
+.card-icon {
+    font-size: 28px;
+    margin-bottom: 12px;
+}
+
+.card.ambulance .card-icon { color: var(--ambulance-color); }
+.card.pompier .card-icon { color: var(--pompier-color); }
+.card.police .card-icon { color: var(--police-color); }
+
+.card h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 20px;
+    margin: 0 0 8px 0;
+    color: var(--ink);
+}
+
+.card p {
+    font-size: 14px;
+    color: #64748b;
+    margin: 0 0 20px 0;
+    line-height: 1.5;
+    flex-grow: 1;
+}
+
+.urgence-numbers {
+    margin-top: auto;
+}
+
+.urgence-empty {
+    font-size: 13px;
+    color: #94a3b8;
+    font-style: italic;
+}
+
+/* ================= 3. PHARMACIE DE GARDE ================= */
+.garde-section {
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 32px;
+    margin: 40px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    box-shadow: 0 4px 16px rgba(30, 58, 138, 0.03);
+}
+
+.info-text h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 24px;
+    color: var(--navy-dk);
+    margin: 0 0 6px 0;
+}
+
+.info-text p {
+    font-size: 14px;
+    color: #64748b;
+    margin: 0;
+}
+
+.garde-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.garde-card {
+    background: var(--sage);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.garde-icon {
+    font-size: 22px;
+    color: #10b981; /* Vert pharmacie */
+}
+
+.garde-details {
+    flex-grow: 1;
+}
+
+.garde-details h4 {
+    margin: 0 0 4px 0;
+    font-size: 16px;
+    color: var(--ink);
+}
+
+.garde-details p {
+    margin: 0;
+    font-size: 13px;
+    color: #64748b;
+}
+
+.garde-empty {
+    font-size: 14px;
+    color: #64748b;
+    background: var(--sage);
+    padding: 16px;
+    border-radius: 12px;
+    margin: 0;
+}
+
+.garde-section .btn-primary {
+    align-self: flex-start;
+}
+
+/* ================= 4. DERNIÈRES ACTUALITÉS ================= */
+.news-section {
+    padding: 40px 0;
+}
+
+.news-section h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 28px;
+    color: var(--navy-dk);
+    margin-bottom: 24px;
+}
+
+.news-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+}
+
+.news-card {
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.news-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+}
+
+.news-img {
+    height: 160px;
+    width: 100%;
+    overflow: hidden;
+    background-color: var(--sage);
+}
+
+.news-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.news-content {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.news-date {
+    font-size: 12px;
+    color: #64748b;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.news-title {
+    font-family: 'Fraunces', serif;
+    font-size: 17px;
+    color: var(--navy-dk);
+    margin: 0 0 8px 0;
+    line-height: 1.3;
+}
+
+.news-excerpt {
+    font-size: 13.5px;
+    color: #475569;
+    margin: 0;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.news-empty {
+    color: #64748b;
+    font-style: italic;
+}
+
+.news-more {
+    margin-top: 28px;
+    text-align: center;
+}
+
+/* ================= 5. DON ================= */
+.don {
+    background: linear-gradient(135deg, var(--navy-dk) 0%, #0f172a 100%);
+    border-radius: var(--radius);
+    padding: 40px 20px;
+    text-align: center;
+    color: #ffffff;
+    margin-top: 40px;
+}
+
+.don h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 28px;
+    margin: 0 0 10px 0;
+}
+
+.don p {
+    font-size: 15px;
+    color: #cbd5e1;
+    max-width: 500px;
+    margin: 0 auto 24px auto;
+    line-height: 1.5;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 768px) {
+    .hero {
+        grid-template-columns: 1fr;
+        gap: 24px;
+        padding: 20px 0 30px 0;
+    }
+
+    .hero-content h1 {
+        font-size: 32px;
+    }
+
+    .hero-image {
+        height: 220px;
+    }
+
+    .garde-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .garde-card .btn-call {
+        width: 100%;
+        justify-content: center;
+        box-sizing: border-box;
+    }
+}
+</style>
     <!-- ================= HERO ================= -->
     <section class="hero">
         <div class="hero-content">
