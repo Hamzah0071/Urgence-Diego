@@ -2,51 +2,24 @@
 // La session est déjà démarrée et vérifiée par HomeController (demarrerSession()).
 // On se contente ici de lire l'action courante et le rôle pour savoir quoi afficher.
 $current_action = $_GET['action'] ?? 'home';
-$id_role = $_SESSION['id_role'] ?? ($_SESSION['user_role'] === 'Administrateur' ? 3 : ($_SESSION['user_role'] === 'Redacteur' ? 2 : 1));
+
+$id_role = $_SESSION['id_role'] ?? null;
+if ($id_role === null) {
+    $nomRole = $_SESSION['user_role'] ?? '';
+    $id_role = $nomRole === 'Administrateur' ? 3 : ($nomRole === 'Redacteur' ? 2 : 1);
+}
 $est_redacteur = ((int) $id_role === 2);
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="asset/icon/fontAwesome/all.min.css">
-</head>
-
 <style>
     /* ==========================================================
-   HEADER — cohérent avec la landing page (index.php)
+   HEADER — réutilise les variables de home.css (--navy, --navy-dk,
+   --red-urgency, --paper, --sage, --line, --ink, --radius).
    Fichier UNIQUE : ne pas dupliquer ce CSS ailleurs.
    ========================================================== */
 :root {
-    --bg-light: #f8fafc;
-    --bg-white: #ffffff;
-    --blue-deep: #1e40af;
-    --blue-deep-dark: #1e3a8a;
-    --red-emergency: #dc2626;
-    --text-dark: #1e293b;
-    --text-muted: #64748b;
-    --transition: all 0.3s ease;
-    --safe-area-inset-bottom: env(safe-area-inset-bottom, 0);
-
-    /* alias pour rester compatible avec le CSS existant du header */
-    --header-bg: var(--bg-white);
-    --header-bg-scrolled: var(--bg-white);
-    --header-height: 77px; /* ≈ padding 1rem + hauteur logo, comme la landing page */
-    --transition-fast: var(--transition);
-    --color-text: var(--text-dark);
-    --color-text-muted: var(--text-muted);
-    --color-primary: var(--blue-deep);
-    --color-primary-dark: var(--blue-deep-dark);
-    --color-danger: var(--red-emergency);
-    --color-danger-dark: #b91c1c;
-    --color-border: #e2e8f0;
-}
-
-* {
-    box-sizing: border-box;
-    font-family: 'Inter', sans-serif;
+    --header-height: 77px; /* ≈ padding 1rem + hauteur logo */
+    --color-border: var(--line, #e2e8f0);
 }
 
 .container {
@@ -55,15 +28,15 @@ $est_redacteur = ((int) $id_role === 2);
     padding: 0 24px;
 }
 
-/* ---------- Header (identique à la landing page) ---------- */
+/* ---------- Header ---------- */
 .site-header {
     padding: 1rem 0;
-    background: var(--bg-white);
+    background: #ffffff;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     position: sticky;
     top: 0;
     z-index: 1000;
-    transition: var(--transition);
+    transition: box-shadow 0.3s ease;
 }
 
 .site-header .container {
@@ -84,7 +57,7 @@ $est_redacteur = ((int) $id_role === 2);
     padding: 0.6rem 1rem;
     min-width: 120px;
     height: 45px;
-    background: linear-gradient(135deg, var(--blue-deep) 0%, #3b82f6 100%);
+    background: linear-gradient(135deg, var(--navy-dk) 0%, var(--navy) 100%);
     border: none;
     border-radius: 8px;
     color: #ffffff;
@@ -94,7 +67,7 @@ $est_redacteur = ((int) $id_role === 2);
     text-decoration: none;
     white-space: nowrap;
     cursor: pointer;
-    transition: var(--transition);
+    transition: transform 0.2s ease;
 }
 
 .logo-placeholder:active {
@@ -112,7 +85,7 @@ $est_redacteur = ((int) $id_role === 2);
     background: none;
     border: none;
     font-size: 1.4rem;
-    color: var(--color-text);
+    color: var(--ink);
     cursor: pointer;
     padding: 8px;
 }
@@ -127,7 +100,7 @@ $est_redacteur = ((int) $id_role === 2);
 }
 
 #topNav.top-nav a {
-    color: var(--color-text);
+    color: var(--ink);
     text-decoration: none;
 }
 
@@ -145,20 +118,20 @@ $est_redacteur = ((int) $id_role === 2);
     border-radius: 999px;
     font-size: 0.95rem;
     font-weight: 500;
-    color: var(--color-text-muted);
+    color: #64748b;
     text-decoration: none;
     white-space: nowrap;
-    transition: var(--transition-fast);
+    transition: all 0.2s ease;
 }
 
 #topNav .nav-links-scroll a:hover {
-    background: rgba(30, 64, 175, 0.08);
-    color: var(--color-primary);
+    background: var(--sage);
+    color: var(--navy-dk);
 }
 
 #topNav .nav-links-scroll a.active {
-    background: rgba(30, 64, 175, 0.1);
-    color: var(--color-primary);
+    background: var(--sage);
+    color: var(--navy-dk);
     font-weight: 600;
 }
 
@@ -167,46 +140,49 @@ $est_redacteur = ((int) $id_role === 2);
     color: inherit;
 }
 
-.btn-donate {
-    background: var(--color-primary);
-    color: #ffffff !important;
-    font-weight: 600;
-}
-
-.btn-donate:hover {
-    background: var(--color-primary-dark);
-    color: #ffffff !important;
-}
-
-/* ---------- Actions à droite ---------- */
+/* ---------- Actions à droite : Profil + petite déconnexion ---------- */
 .nav-actions {
     display: flex;
     align-items: center;
+    gap: 8px;
     margin-left: 16px;
 }
 
-.btn-logout {
+.btn-profile {
     display: flex;
     align-items: center;
     gap: 8px;
     padding: 9px 18px;
-    border: 1px solid var(--color-danger);
     border-radius: 999px;
     font-size: 0.9rem;
     font-weight: 600;
-    background: var(--color-danger) !important;
-    color: #ffffff !important;
+    background: var(--navy-dk);
+    color: #ffffff;
     text-decoration: none;
-    transition: var(--transition-fast);
+    transition: background 0.2s ease;
 }
 
-.btn-logout i {
-    color: #ffffff !important;
+.btn-profile:hover {
+    background: var(--navy);
 }
 
-.btn-logout:hover {
-    background: var(--color-danger-dark) !important;
-    opacity: 0.9;
+.btn-logout-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 1px solid var(--color-border);
+    color: var(--red-urgency);
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: background 0.2s ease;
+    flex-shrink: 0;
+}
+
+.btn-logout-icon:hover {
+    background: #fdecea;
 }
 
 /* ---------- Backdrop mobile ---------- */
@@ -229,7 +205,7 @@ $est_redacteur = ((int) $id_role === 2);
         right: 0;
         width: min(320px, 85vw);
         height: calc(100dvh - var(--header-height));
-        background: var(--bg-white);
+        background: #ffffff;
         flex-direction: column;
         align-items: stretch;
         justify-content: flex-start;
@@ -260,8 +236,8 @@ $est_redacteur = ((int) $id_role === 2);
 
     #topNav .nav-links-scroll a:active,
     #topNav .nav-links-scroll a:focus {
-        background: rgba(30, 64, 175, 0.1);
-        color: var(--color-primary);
+        background: var(--sage);
+        color: var(--navy-dk);
     }
 
     .nav-actions {
@@ -271,14 +247,9 @@ $est_redacteur = ((int) $id_role === 2);
         padding-top: 16px;
     }
 
-    .btn-logout {
+    .btn-profile {
+        flex: 1;
         justify-content: center;
-        width: 100%;
-    }
-
-    .btn-logout:active {
-        background: var(--color-danger-dark) !important;
-        opacity: 0.9;
     }
 
     .nav-backdrop {
@@ -301,7 +272,7 @@ $est_redacteur = ((int) $id_role === 2);
 </style>
 
 <header class="site-header">
-    <div class="container ">
+    <div class="container">
         <a href="index.php?action=home" class="logo-placeholder">
             <i class="fa-solid fa-truck-medical logo-icon"></i>
             URGENCES
@@ -334,11 +305,14 @@ $est_redacteur = ((int) $id_role === 2);
                 <a href="index.php?action=urgence-carte" class="<?= $current_action === 'urgence-carte' ? 'active' : '' ?>">
                     <i class="fa-solid fa-map-location-dot"></i> Carte
                 </a>
-
             </div>
+
             <div class="nav-actions">
-                <a href="index.php?action=logout" class="btn-logout">
-                    <i class="fa-solid fa-user"></i> Déconnexion
+                <a href="index.php?action=profil" class="btn-profile <?= $current_action === 'profil' ? 'active' : '' ?>">
+                    <i class="fa-solid fa-user"></i> Mon profil
+                </a>
+                <a href="index.php?action=logout" class="btn-logout-icon" title="Déconnexion" aria-label="Déconnexion">
+                    <i class="fa-solid fa-right-from-bracket"></i>
                 </a>
             </div>
         </nav>

@@ -21,7 +21,7 @@ use App\Models\Article;
         .article-container {
             max-width: 800px;
             margin: 0 auto;
-            padding: 40px 20px 60px;
+            padding: 40px 20px 20px;
         }
 
         .back-link {
@@ -88,6 +88,30 @@ use App\Models\Article;
             margin: 0;
             color: #475569;
         }
+
+        /* ---------- Autres actualités (related) ---------- */
+        .related-section {
+            max-width: 1100px;
+            margin: 20px auto 0;
+            padding: 40px 20px 60px;
+            border-top: 1px solid var(--line);
+        }
+
+        .related-section h2 {
+            font-family: 'Fraunces', serif;
+            font-size: 1.5rem;
+            color: var(--navy-dk);
+            margin: 30px 0 24px;
+        }
+
+        .news-source-badge {
+            background: var(--sage);
+            color: var(--navy-dk);
+            padding: 3px 12px;
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 0.72rem;
+        }
     </style>
 </head>
 <body>
@@ -127,6 +151,37 @@ use App\Models\Article;
             </div>
         <?php endif; ?>
     </article>
+
+    <!-- ================= AUTRES ACTUALITÉS ================= -->
+    <?php if (!empty($autresArticles)): ?>
+        <section class="related-section">
+            <h2>Autres actualités</h2>
+            <div class="news-grid">
+                <?php foreach ($autresArticles as $autre):
+                    $imgAutre = Article::extraireImage($autre['contenu']);
+                    $extraitAutre = Article::nettoyerContenu($autre['contenu']);
+                    $extraitCourt = mb_substr($extraitAutre, 0, 110) . (mb_strlen($extraitAutre) > 110 ? '…' : '');
+                    $lienAutre = "index.php?action=article-detail&id=" . (int)$autre['id_article'];
+                ?>
+                    <a href="<?= $lienAutre ?>" class="news-card">
+                        <?php if ($imgAutre): ?>
+                            <div class="news-img">
+                                <img src="<?= htmlspecialchars($imgAutre) ?>" alt="<?= htmlspecialchars($autre['titre']) ?>">
+                            </div>
+                        <?php endif; ?>
+                        <div class="news-content">
+                            <span class="news-date">
+                                <span class="news-source-badge"><?= htmlspecialchars($autre['nom_source'] ?? 'Rédaction') ?></span>
+                                <i class="far fa-calendar-alt"></i> <?= date('d/m/Y', strtotime($autre['date_publication'])) ?>
+                            </span>
+                            <h3 class="news-title"><?= htmlspecialchars($autre['titre']) ?></h3>
+                            <p class="news-excerpt"><?= htmlspecialchars($extraitCourt) ?></p>
+                        </div>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+        </section>
+    <?php endif; ?>
 
     <?php require __DIR__ . '/../includes/footer.php'; ?>
 </body>

@@ -12,6 +12,7 @@ use PDOException;
 require_once __DIR__ . '/../Models/Article.php';
 require_once __DIR__ . '/../Models/Service.php';
 require_once __DIR__ . '/../Models/Quartier.php';
+require_once __DIR__ . '/../Models/User.php';
 
 class HomeController
 {
@@ -33,16 +34,21 @@ class HomeController
         $pharmaciesGarde = $serviceModel->getPharmaciesDeGardeAujourdhui();
         $urgenceServices = $serviceModel->getServicesUrgence();
 
+        // getPublies() (au lieu de getDernieres()) fait la jointure avec
+        // sources_articles, donc renvoie aussi nom_source pour le badge
+        // affiché sur les cartes (même badge que sur actualites.php).
         $dernieresActus = array_map(static function (array $a) {
+            $texte = Article::nettoyerContenu($a['contenu']);
             return [
                 'id'          => $a['id_article'],
                 'titre'       => $a['titre'],
-                'image'       => null, // Le modèle ne stocke pas d'image séparée
-                'extrait'     => mb_substr(strip_tags($a['contenu']), 0, 110) . '...',
+                'image'       => Article::extraireImage($a['contenu']),
+                'extrait'     => mb_substr($texte, 0, 110) . (mb_strlen($texte) > 110 ? '…' : ''),
                 'lien_source' => $a['lien_source'],
                 'date'        => $a['date_publication'],
+                'nom_source'  => $a['nom_source'] ?? null,
             ];
-        }, $articleModel->getDernieres(3));
+        }, $articleModel->getPublies(3));
 
         $this->render('home', [
             'pharmaciesGarde' => $pharmaciesGarde,
@@ -85,6 +91,7 @@ class HomeController
 
         $this->render('article-detail', [
             'article' => $article,
+            'autresArticles' => $articleModel->getAutres($id, 3),
         ]);
     }
 
@@ -211,6 +218,11 @@ class HomeController
      * ============================================================= */
     public function profile(): void
     {
+        if (empty($_SESSION['id_utilisateur'])) {
+            header('Location: index.php?action=login');
+            exit;
+        }
+
         $userModel = new User($this->pdo);
         $profil = $userModel->getProfilComplet((int)$_SESSION['id_utilisateur']);
 

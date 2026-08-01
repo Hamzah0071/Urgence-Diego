@@ -1,112 +1,68 @@
-Voici la relecture complète et vérifiée du **Calendrier de Garde 2026 - DIEGO** d'après le document original :
 
----
+Excellent choix. Pour un projet scolaire, LWS est parfait, économique et très formateur.
+Voici la marche à suivre complète, étape par étape, depuis votre PC Windows pour configurer votre hébergement, importer vos fichiers et votre base de données SQL.
+------------------------------
+## Étape 1 : Commander l'hébergement
 
-## 1. Liste des pharmacies et leurs couleurs
+   1. Rendez-vous sur le site de LWS.
+   2. Choisissez l'offre LWS Perso (généralement autour de 1,49 €/mois).
+   3. Lors de la commande, LWS vous offre un nom de domaine gratuit (ex: monprojetsolaire.fr ou .com). Choisissez-en un disponible.
+   4. Finalisez le paiement. Vous allez recevoir par e-mail vos identifiants de connexion (Espace Client, FTP, et MySQL). Conservez bien cet e-mail. [1, 2, 3, 4] 
 
-* **HENINTSOA** : / Taupe
-* **MAHAVAYY** : Prune / Bordeaux
-* **AVENIR** : * **ISSA** : * **MORA** : Brun
-* **ESPERANCE** : **MAHASOA** : Beige rosé / Orange clair
-* **OLGA** : / Anthracite
+------------------------------
+## Étape 2 : Exporter votre base de données SQL (depuis votre Windows)
 
----
+   1. Ouvrez votre outil local (WampServer, XAMPP ou Laragon).
+   2. Allez sur votre phpMyAdmin local (http://localhost/phpmyadmin).
+   3. Cliquez sur le nom de la base de données de votre projet dans la colonne de gauche.
+   4. Cliquez sur l'onglet Exporter en haut, puis sur le bouton Exporter (le format par défaut est .sql).
+   5. Enregistrez ce fichier sur votre bureau Windows. [5] 
 
-## 2. Planning des tours de garde (Janvier – Décembre 2026)
+------------------------------
+## Étape 3 : Créer et importer la base de données sur LWS
 
-### **Janvier**
+   1. Connectez-vous à votre Espace Client LWS. [6] 
+   2. Cliquez sur Gérer à côté de votre domaine, puis cherchez l'icône Base MySQL ou MySQL Backups.
+   3. Cliquez sur Créer une base de données. LWS va vous générer :
+   * Un nom de base de données (ex: lws_12345_prod)
+      * Un utilisateur (ex: lws_12345)
+      * Un mot de passe
+      * Un serveur (ex: sql.lws.fr ou une adresse IP) [7] 
+   4. Ouvrez le phpMyAdmin en ligne fourni par LWS (le lien est dans votre espace client).
+   5. Sélectionnez votre nouvelle base vide à gauche, allez dans l'onglet Importer, choisissez le fichier .sql sauvegardé à l'étape 2, et validez.
 
-* **3 – 09** : HENINTSOA
-* **10 – 16** : AVENIR
-* **17 – 23** : MORA
-* **24 – 30** : MAHASOA
-* **25 – 31** : HENINTSOA
+------------------------------
+## Étape 4 : Adapter votre code PHP (Gestion des identifiants)
+Sur votre PC, ouvrez votre fichier de connexion à la base de données (souvent appelé connexion.php, db.php ou config via PDO).
+Vous devez remplacer les identifiants locaux (localhost, root, pas de mot de passe) par ceux que LWS vient de vous donner :
 
-### **Février**
+try {
+    // Remplacez par vos vraies informations LWS
+    $db = new PDO('mysql:host=SERVEUR_LWS;dbname=NOM_DE_BASE_LWS;charset=utf8', 'UTILISATEUR_LWS', 'MOT_DE_PASSE_LWS');
+} catch (Exception $e) {
+    die('Erreur : ' . $e->getMessage());
+}
 
-* **31 "janvier" – 6** : MAHAVAYY
-* **8 – 14** : ISSA
-* **15 – 21** : ESPERANCE
-* **22 – 28** : OLGA
+Astuce GitHub : Si votre dépôt GitHub est public, ne poussez pas ce fichier avec les vrais mots de passe de LWS en ligne. Laissez des lignes vides ou utilisez un fichier .env ignoré par Git pour des raisons de sécurité.
+------------------------------
+## Étape 5 : Transférer les fichiers sur LWS via FTP
+Puisque vous êtes sur Windows, la méthode la plus simple pour envoyer vos fichiers PHP est d'utiliser FileZilla.
 
-### **Mars**
+   1. Téléchargez et installez gratuitement [FileZilla Client](https://filezilla-project.org/). [8, 9] 
+   2. Ouvrez FileZilla et remplissez les cases tout en haut avec les informations de l'e-mail de LWS :
+   * Hôte : l'adresse FTP fournie (ex: ftp.monprojetsolaire.fr)
+      * Identifiant : votre utilisateur FTP
+      * Mot de passe : votre mot de passe FTP
+      * Port : 21 (ou laissez vide)
+   3. Cliquez sur Connexion rapide.
+   4. Dans la fenêtre de droite (le serveur en ligne), ouvrez le dossier nommé htdocs ou public_html (c'est le dossier public de votre site). Si vous voyez un fichier index.html par défaut de LWS, supprimez-le. [10] 
+   5. Dans la fenêtre de gauche (votre PC Windows), cherchez le dossier de votre projet.
+   6. Sélectionnez tous vos fichiers PHP, faites un clic droit, puis cliquez sur Envoyer. [11] 
 
-* **1 – 7** : AVENIR
-* **8 – 14** : MORA
-* **15 – 21** : MAHASOA
-* **22 – 28** : HENINTSOA
-* **29 – 31** : OLGA
+Une fois le transfert terminé, ouvrez votre navigateur et tapez votre nom de domaine : votre site PHP/SQL d'école est en ligne !
+------------------------------
+Si vous le souhaitez, dites-moi :
 
-### **Avril**
+* Quel outil utilisez-vous pour coder sous Windows (VS Code, Notepad++, etc.) ?
+* Voulez-vous que l'on configure l'automatisation avec GitHub Actions pour éviter d'utiliser FileZilla à chaque modification ?
 
-* **1 – 4** : MAHAVAYY
-* **5 – 11** : ISSA
-* **12 – 18** : ESPERANCE
-* **19 – 25** : HENINTSOA
-* **26 – 30** : OLGA
-
-### **Mai**
-
-* **1 – 2** : AVENIR
-* **3 – 9** : MORA
-* **10 – 16** : MAHASOA
-* **17 – 23** : OLGA
-* **24 – 30** : MAHAVAYY
-* **31** : OLGA
-
-### **Juin**
-
-* **1 – 6** : ISSA
-* **7 – 13** : ESPERANCE
-* **14 – 20** : HENINTSOA
-* **21 – 27** : AVENIR
-* **28 – 30** : MORA
-
-### **Juillet**
-
-* **1 – 3** : MORA
-* **4 – 10** : MAHASOA
-* **11 – 17** : OLGA
-* **18 – 24** : MAHAVAYY
-* **25 – 31** : AVENIR
-
-### **Août**
-
-* **1** : ISSA
-* **2 – 8** : ESPERANCE
-* **9 – 15** : HENINTSOA
-* **16 – 22** : AVENIR
-* **23 – 29** : MORA
-* **30 – 31** : MAHASOA
-
-### **Septembre**
-
-* **1 – 5** : MAHASOA
-* **6 – 12** : OLGA
-* **13 – 19** : MAHAVAYY
-* **20 – 26** : ISSA
-* **27 – 30** : OLGA
-
-### **Octobre**
-
-* **1 – 3** : ESPERANCE
-* **4 – 10** : HENINTSOA
-* **11 – 17** : AVENIR
-* **18 – 24** : MORA
-* **25 – 31** : MAHASOA
-
-### **Novembre**
-
-* **1 – 7** : OLGA
-* **8 – 14** : MAHAVAYY
-* **15 – 21** : ISSA
-* **22 – 28** : ESPERANCE
-* **29 – 30** : HENINTSOA
-
-### **Décembre**
-
-* **1 – 5** : HENINTSOA
-* **6 – 12** : AVENIR
-* **13 – 19** : MORA
-* **20 – 26** : MAHASOA
-* **27 – 31** : OLGA

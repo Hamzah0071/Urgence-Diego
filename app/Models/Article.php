@@ -53,42 +53,54 @@ class Article
     }
 
     /**
-     * Récupère les derniers articles publiés avec infos source + auteur
-     * (RSS et Rédacteurs), pour les pages ayant besoin de ces jointures.
+     * Alias de getDernieres(), pour coller au nom attendu par HomeController::home().
+     * Garder les deux noms évite de casser d'autres pages qui appelleraient déjà
+     * getDernieres() ; à terme, choisis-en un seul et supprime l'autre.
      */
-    public function getArticlesRecents(int $limit = 10): array
+    public function getArticlesRecents(int $limite = 3): array
     {
-        try {
-            $stmt = $this->pdo->prepare("
-                SELECT a.*, s.nom_source, u.nom AS auteur_nom, u.prenom AS auteur_prenom
-                FROM article a
-                LEFT JOIN sources_articles s ON a.id_source = s.id_source
-                LEFT JOIN utilisateur u ON a.id_auteur = u.id_utilisateur
-                WHERE a.statut = 'publie'
-                ORDER BY a.date_publication DESC
-                LIMIT :limit
-            ");
-            $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
-            $stmt->execute();
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            return [];
-        }
+        return $this->getDernieres($limite);
     }
 
-    /** Récupère un article par son ID (avec source + auteur). */
+    /**
+     * Un article publié, pour la page de détail (HomeController::articleDetail()).
+     * Retourne null si l'article n'existe pas ou n'est pas publié.
+     */
     public function getById(int $id): ?array
     {
         $stmt = $this->pdo->prepare("
-            SELECT a.*, s.nom_source, u.nom AS auteur_nom, u.prenom AS auteur_prenom
+            SELECT
+                a.id_article, a.titre, a.contenu, a.lien_source, a.date_publication,
+                u.nom AS auteur_nom, u.prenom AS auteur_prenom, s.nom_source
             FROM article a
-            LEFT JOIN sources_articles s ON a.id_source = s.id_source
             LEFT JOIN utilisateur u ON a.id_auteur = u.id_utilisateur
-            WHERE a.id_article = :id
+            LEFT JOIN sources_articles s ON a.id_source = s.id_source
+            WHERE a.id_article = :id AND a.statut = 'publie'
         ");
         $stmt->execute(['id' => $id]);
-        $article = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $article ?: null;
+        $resultat = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $resultat ?: null;
+    }
+
+    /**
+     * Quelques autres articles publiés (en excluant celui affiché), pour la
+     * section "Autres actualités" en bas de la page de détail.
+     */
+    public function getAutres(int $idExclu, int $limite = 3): array
+    {
+        $stmt = $this->pdo->prepare("
+            SELECT
+                a.id_article, a.titre, a.contenu, a.lien_source, a.date_publication, s.nom_source
+            FROM article a
+            LEFT JOIN sources_articles s ON a.id_source = s.id_source
+            WHERE a.statut = 'publie' AND a.id_article != :id_exclu
+            ORDER BY a.date_publication DESC
+            LIMIT :limite
+        ");
+        $stmt->bindValue(':id_exclu', $idExclu, PDO::PARAM_INT);
+        $stmt->bindValue(':limite', $limite, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /** Historique des publications d'un rédacteur, pour new-article.php. */
@@ -155,32 +167,27 @@ class Article
         $stmt->execute(['id' => $idArticle, 'id_auteur' => $idAuteur]);
     }
 
-    /**
-     * Extrait la première image du contenu HTML ou renvoie une image par défaut.
-     */
-    public static function extraireImage(?string $contenu): string
+    /* -----------------------------------------------------------
+     * Helpers d'affichage statiques (utilisés par les Views/Controllers,
+     * pas d'accès BDD ici)
+     * --------------------------------------------------------- */
+
+    /** Extrait la première image (URL src) trouvée dans le contenu HTML d'un article. */
+    public static function extraireImage(string $contenu): ?string
     {
-        if (empty($contenu)) {
-            return 'asset/img/default-news.jpg';
-        }
-        // Chercher une balise <img> dans le contenu
-        if (preg_match('/<img.+src=["\']([^"\']+)["\']/', $contenu, $matches)) {
+        if (preg_match('/<img[^>]+src="([^"]+)"/i', $contenu, $matches)) {
             return $matches[1];
         }
-        // Image par défaut si aucune image trouvée
-        return 'asset/img/default-news.jpg';
+        return null;
     }
 
     /**
-     * Nettoie le contenu HTML pour l'aperçu (retire les images et les balises).
+     * Nettoie le contenu HTML d'un article pour l'affichage en texte brut
+     * (retire les balises, trim). Ne tronque pas : c'est à l'appelant de
+     * découper avec mb_substr() selon la longueur voulue.
      */
-    public static function nettoyerContenu(?string $contenu): string
+    public static function nettoyerContenu(string $contenu): string
     {
-        if (empty($contenu)) {
-            return "";
-        }
-        // Supprimer les balises images du texte pour l'extrait
-        $texte = preg_replace('/<img[^>]+>/i', '', $contenu);
-        return strip_tags($texte);
+        return trim(strip_tags($contenu));
     }
 }
