@@ -402,6 +402,7 @@
             <form method="GET" action="index.php" class="filtres-form">
                 <input type="hidden" name="action" value="service-urgence">
                 <input type="text" name="q" placeholder="Rechercher..." value="<?= htmlspecialchars($recherche) ?>">
+                
 
                 <select name="id_quartier" onchange="this.form.submit()">
                     <option value="">Tous les quartiers</option>

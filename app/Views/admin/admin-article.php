@@ -26,10 +26,50 @@
                 </div>
             <?php endif; ?>
 
-            <?php if ($erreur): ?><div class="alert erreur" style="background: #fee2e2; color: #991b1b; padding: 15px; border-radius: 5px; margin: 20px 0;"><?php echo htmlspecialchars($erreur); ?></div><?php endif; ?>
-            <?php if ($succes): ?><div class="alert success" style="background: #dcfce7; color: #166534; padding: 15px; border-radius: 5px; margin: 20px 0;"><?php echo htmlspecialchars($succes); ?></div><?php endif; ?>
+            <?php if (!empty($messageValidation)): ?>
+                <div class="alert success" style="background: #dcfce7; color: #166534; padding: 15px; border-radius: 5px; margin: 20px 0;"><?php echo htmlspecialchars($messageValidation); ?></div>
+            <?php endif; ?>
+            <?php if (!empty($erreur)): ?><div class="alert erreur" style="background: #fee2e2; color: #991b1b; padding: 15px; border-radius: 5px; margin: 20px 0;"><?php echo htmlspecialchars($erreur); ?></div><?php endif; ?>
+            <?php if (!empty($succes)): ?><div class="alert success" style="background: #dcfce7; color: #166534; padding: 15px; border-radius: 5px; margin: 20px 0;"><?php echo htmlspecialchars($succes); ?></div><?php endif; ?>
 
-            <!-- Formulaire d'ajout -->
+            <!-- Articles rédacteurs en attente de validation -->
+            <section class="pending-articles-section" style="background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 30px;">
+                <h2 style="margin-bottom: 5px;">📝 Articles rédacteurs en attente de validation</h2>
+                <p style="color: #64748b; font-size: 0.85rem; margin-bottom: 20px;">Ces articles ont été soumis par des rédacteurs et ne sont pas encore visibles sur le site public.</p>
+
+                <?php if (empty($articlesAValider)): ?>
+                    <p class="empty-state" style="padding: 20px; text-align: center; color: #64748b;">Aucun article en attente de validation.</p>
+                <?php else: ?>
+                    <?php foreach ($articlesAValider as $art): ?>
+                        <div class="article-attente" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px 20px; margin-bottom: 12px;">
+                            <h3 style="margin: 0 0 6px; font-size: 1rem;"><?= htmlspecialchars($art['titre']) ?></h3>
+                            <div style="color: #64748b; font-size: 0.87rem; line-height: 1.5; margin-bottom: 8px; max-height: 3em; overflow: hidden;">
+                                <?= htmlspecialchars(mb_strimwidth(strip_tags($art['contenu']), 0, 200, '…')) ?>
+                            </div>
+                            <div style="font-size: 0.78rem; color: #64748b; display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 12px;">
+                                <span>Par <?= htmlspecialchars(trim(($art['auteur_prenom'] ?? '') . ' ' . ($art['auteur_nom'] ?? '')) ?: 'Auteur inconnu') ?></span>
+                                <span>Soumis le <?= !empty($art['date_publication']) ? date('d/m/Y à H:i', strtotime($art['date_publication'])) : 'date inconnue' ?></span>
+                                <?php if (!empty($art['lien_source'])): ?>
+                                    <a href="<?= htmlspecialchars($art['lien_source']) ?>" target="_blank" rel="noopener" style="color: #1e40af; text-decoration: none;">Voir la publication Facebook ↗</a>
+                                <?php endif; ?>
+                            </div>
+                            <div style="display: flex; gap: 10px;">
+                                <a href="index.php?action=admin-articles&valider=<?= (int)$art['id_article'] ?>"
+                                   style="font-size: 0.82rem; font-weight: 600; text-decoration: none; padding: 7px 14px; border-radius: 6px; color: #166534; background: #dcfce7;">
+                                    Valider
+                                </a>
+                                <a href="index.php?action=admin-articles&refuser=<?= (int)$art['id_article'] ?>"
+                                   onclick="return confirm('Refuser cet article ? Il restera invisible du public.');"
+                                   style="font-size: 0.82rem; font-weight: 600; text-decoration: none; padding: 7px 14px; border-radius: 6px; color: #991b1b; background: #fee2e2;">
+                                    Refuser
+                                </a>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </section>
+
+            <!-- Formulaire d'ajout de source -->
             <section class="add-pharmacy-section" style="background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 30px;">
                 <h2 style="margin-bottom: 20px;">Ajouter une nouvelle source</h2>
                 <form method="post" action="index.php?action=admin-articles" id="form-reseau_social">
