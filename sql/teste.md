@@ -112,4 +112,28 @@
 * **26 – 3 " janvier 2027** : MAHASOA
 
 
-les quarties o
+les quarties sont :
+
+* 1, 'Place Kabary', -12.2697217, 49.2917480
+* 2, 'Avenir', -12.2813217, 49.2914384
+* 3, 'SCAMA', -12.3212863, 49.2968186
+* 4, 'Lazaret Nord', -12.2807425, 49.3018896
+* 5, 'Lazaret Sud', -12.2888907, 49.3021674
+* 6, 'Grand Pavois', -12.2925245, 49.2873116
+* 7, 'Tanambao V', -12.2881553, 49.2854104
+* 8, 'Ambalavola', -12.3185580, 49.2816082
+* 9, 'Soafeno', -12.2959698, 49.2904805
+* 10, 'Morafeno', -12.3019370, 49.2980863
+* 11, 'Mahatsara', -12.2937004, 49.2778063
+* 12, 'Cité Ouvrière', -12.2977853, 49.3006218
+* 13, 'Tsaramandroso', -12.2958125, 49.2858594
+* 14, 'Bazar Kely', -12.2868000, 49.2871000
+* 15, 'Manongalaza', -12.3233380, 49.2905003
+* 16, 'Tanambao Nord', -12.2865206, 49.2939664
+* 17, 'Tanambao Sud', -12.2902052, 49.2936494
+* 18, 'Centre-ville', -12.2851300, 49.2936700
+* 19, 'Tanambao IV', -12.2902000, 49.2898000
+* 20, 'Tanambao Tsena', -12.2889000, 49.2923000
+
+GENDARMERIE COMPAGNIE ANTSIRANANA, Boulevard Sakaramy, Bazarikely, Antsiranana, District de Antsiranana I, Diana, Province d'Antsiranana, 201, Madagascar
+

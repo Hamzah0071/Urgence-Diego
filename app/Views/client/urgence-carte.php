@@ -6,22 +6,22 @@
     <meta name="theme-color" content="#1e40af">
     <title>Carte des urgences - Urgences Antsiranana</title>
 
+    <link rel="stylesheet" href="public/asset/css/client/home.css">
+    <link rel="stylesheet" href="public/asset/icon/fontAwesome/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 
     <style>
         :root{
-            --ink:#1c231e;
-            --paper:#f6f4ee;
-            --navy:#1e40af;
-            --navy-dk:#132b78;
-            --sage:#eef1f6;
-            --line:#cfd6e2;
-            --pharmacie:#e8b944;
-            --hopital:#c0392b;
-            --police:#1e40af;
-            --pompier:#d9631e;
+            /* Couleurs de catégories alignées sur home.css / service-urgence.php
+               (--pompier-color, --police-color, --ambulance-color déjà définis
+               par home.css ; --pharmacie-color n'y est pas encore, fallback ici). */
+            --pharmacie-color: #10b981;
+            --pharmacie: var(--pharmacie-color);
+            --hopital: var(--ambulance-color, #dc2626);
+            --police: var(--police-color, #1d4ed8);
+            --pompier: var(--pompier-color, #d97706);
             --radius:14px;
         }
         #urg-app *{box-sizing:border-box;}
@@ -78,9 +78,9 @@
             background:#fff;
             color:var(--ink);
             outline:none;
-            transition:border-color .15s ease;
+            transition:border-color .15s ease, box-shadow .15s ease;
         }
-        #urg-search:focus{ border-color:var(--navy); }
+        #urg-search:focus{ border-color:var(--navy); box-shadow:0 0 0 3px rgba(59,130,246,0.15); }
         #urg-search::placeholder{ color:#93a0ae; }
         .pills{ display:flex; gap:6px; flex-wrap:wrap; margin-top:12px; }
         .pill{
@@ -105,7 +105,10 @@
         .pill.active .swatch{ background:#fff !important; }
         #urg-count{ font-size:12px; color:#5b6674; margin-top:10px; }
         #urg-list{ overflow-y:auto; flex:1; padding:12px 12px 24px 12px; }
-        .card{
+        /* Toutes les règles ci-dessous sont scopées sous #urg-app pour ne
+           JAMAIS entrer en collision avec les classes génériques .card /
+           .card-top définies par home.css (page d'accueil). */
+        #urg-app .card{
             background:#fff;
             border:1px solid var(--line);
             border-left:4px solid var(--navy);
@@ -115,25 +118,25 @@
             cursor:pointer;
             transition:transform .12s ease, box-shadow .15s ease;
         }
-        .card:hover{ transform:translateY(-1px); box-shadow:0 4px 14px rgba(30,64,175,0.08); }
-        .card.active{ background:var(--sage); box-shadow:0 4px 14px rgba(30,64,175,0.12); }
-        .card.no-position{ opacity:.65; cursor:default; }
-        .card-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
-        .card-cat{
+        #urg-app .card:hover{ transform:translateY(-1px); box-shadow:0 4px 14px rgba(30,64,175,0.08); }
+        #urg-app .card.active{ background:var(--sage); box-shadow:0 4px 14px rgba(30,64,175,0.12); }
+        #urg-app .card.no-position{ opacity:.65; cursor:default; }
+        #urg-app .card-top{ position:static; display:flex; justify-content:space-between; align-items:flex-start; gap:8px; height:auto; }
+        #urg-app .card-cat{
             font-family:'Space Mono',monospace;
             font-size:10px;
             letter-spacing:.06em;
             text-transform:uppercase;
             margin-bottom:3px;
         }
-        .card-name{
+        #urg-app .card-name{
             font-family:'Fraunces',serif;
             font-weight:600;
             font-size:15.5px;
             color:var(--navy-dk);
             line-height:1.25;
         }
-        .badge{
+        #urg-app .badge{
             font-family:'Space Mono',monospace;
             font-size:10px;
             letter-spacing:.05em;
@@ -145,9 +148,9 @@
             background:#eee2c9;
             color:#8a6416;
         }
-        .card-address{ font-size:12.5px; color:#5b6674; margin-top:4px; }
-        .card-quartier{ font-size:11.5px; color:#93a0ae; margin-top:2px; }
-        .card-phone{ margin-top:8px; font-family:'Space Mono',monospace; font-size:12px; color:var(--navy-dk); }
+        #urg-app .card-address{ font-size:12.5px; color:#5b6674; margin-top:4px; }
+        #urg-app .card-quartier{ font-size:11.5px; color:#93a0ae; margin-top:2px; }
+        #urg-app .card-phone{ margin-top:8px; font-family:'Space Mono',monospace; font-size:12px; color:var(--navy-dk); }
         .empty-state{ padding:32px 16px; text-align:center; color:#5b6674; font-size:13px; }
         #urg-map{ height:100%; width:100%; }
         .leaflet-popup-content-wrapper{ border-radius:10px; font-family:'Inter',sans-serif; }
@@ -299,8 +302,9 @@
 <script>
 const allServices = <?= $servicesJson ?: '[]' ?>;
 
+// Couleurs alignées sur home.css / service-urgence.php (mêmes catégories partout sur le site)
 const CATEGORY_LABELS = { pharmacie: 'Pharmacie', hopital: 'Hôpital', police: 'Police', pompier: 'Pompiers' };
-const CATEGORY_COLORS = { pharmacie: '#e8b944', hopital: '#c0392b', police: '#1e40af', pompier: '#d9631e' };
+const CATEGORY_COLORS = { pharmacie: '#10b981', hopital: '#dc2626', police: '#1d4ed8', pompier: '#d97706' };
 const CATEGORY_GLYPH  = { pharmacie: '+', hopital: '✚', police: '★', pompier: '▲' };
 
 const map = L.map('urg-map', { zoomControl: true }).setView([-12.284, 49.293], 14);
@@ -452,5 +456,7 @@ document.querySelectorAll('#urg-pills .pill').forEach(pill => {
 
 render();
 </script>
+
+<?php require __DIR__ . '/../includes/footer.php'; ?>
 </body>
 </html>

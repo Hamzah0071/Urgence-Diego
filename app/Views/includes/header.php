@@ -35,7 +35,7 @@ $est_redacteur = ((int) $id_role === 2);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     position: sticky;
     top: 0;
-    z-index: 1000;
+    z-index: 2000;
     transition: box-shadow 0.3s ease;
 }
 
@@ -216,7 +216,7 @@ $est_redacteur = ((int) $id_role === 2);
         transition: transform 0.3s ease;
         box-shadow: -8px 0 24px rgba(0, 0, 0, 0.08);
         overflow-y: auto;
-        z-index: 950;
+        z-index: 2050;
     }
 
     .top-nav.open {
@@ -261,7 +261,7 @@ $est_redacteur = ((int) $id_role === 2);
         opacity: 0;
         pointer-events: none;
         transition: opacity 0.3s ease;
-        z-index: 900;
+        z-index: 2000;
     }
 
     .nav-backdrop.open {
@@ -325,8 +325,20 @@ $est_redacteur = ((int) $id_role === 2);
     var MOBILE_BREAKPOINT = 900; // doit correspondre au @media du CSS
 
     function toggleMobileMenu() {
-        document.getElementById('topNav').classList.toggle('open');
-        document.getElementById('navBackdrop').classList.toggle('open');
+        var nav = document.getElementById('topNav');
+        var backdrop = document.getElementById('navBackdrop');
+
+        if (!nav || !backdrop) {
+            console.error('toggleMobileMenu: #topNav ou #navBackdrop introuvable dans le DOM.');
+            return;
+        }
+
+        // On force les deux éléments dans le même état (plutôt que deux
+        // .toggle() indépendants) pour qu'ils ne puissent jamais se
+        // désynchroniser si un des deux appels venait à échouer.
+        var estOuvert = !nav.classList.contains('open');
+        nav.classList.toggle('open', estOuvert);
+        backdrop.classList.toggle('open', estOuvert);
     }
 
     document.querySelectorAll('#topNav a').forEach(function (link) {
