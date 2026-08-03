@@ -79,36 +79,45 @@ class Service
      * @return array{pompier: array, police: array, ambulance: array}
      */
     public function getServicesUrgence(): array
-    {
-        $resultat = ['pompier' => [], 'police' => [], 'ambulance' => []];
-        try {
-            $sql = "SELECT s.libelle, s.telephone, t.nom_type
-                    FROM service s
-                    INNER JOIN type_service t ON s.id_type = t.id_type
-                    WHERE s.actif = 1
-                      AND s.id_type IN (2, 3, 4)
-                    ORDER BY t.nom_type, s.libelle";
-            $lignes = $this->pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+{
+    $resultat = ['pompier' => [], 'police' => [], 'ambulance' => []];
+    try {
+        $sql = "SELECT s.libelle, s.telephone, t.nom_type
+                FROM service s
+                INNER JOIN type_service t ON s.id_type = t.id_type
+                WHERE s.actif = 1
+                  AND s.id_type IN (2, 3, 4)
+                ORDER BY t.nom_type, s.libelle";
+        $lignes = $this->pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
 
-            foreach ($lignes as $s) {
-                switch ($s['nom_type']) {
-                    case 'Pompier':
-                        $resultat['pompier'][] = $s;
-                        break;
-                    case "Force de l'ordre":
-                        $resultat['police'][] = $s;
-                        break;
-                    case 'Hôpital':
-                        $resultat['ambulance'][] = $s;
-                        break;
-                }
+        foreach ($lignes as $s) {
+            switch ($s['nom_type']) {
+                case 'Pompier':
+                    $resultat['pompier'][] = $s;
+                    break;
+                case "Force de l'ordre":
+                    $resultat['police'][] = $s;
+                    break;
+                case 'Hôpital':
+                    $resultat['ambulance'][] = $s;
+                    break;
             }
-        } catch (PDOException $e) {
-            return ['pompier' => [], 'police' => [], 'ambulance' => []];
         }
 
-        return $resultat;
+        // La carte "Ambulance" de l'accueil doit toujours afficher Manarapenitra
+        // en priorité, peu importe l'ordre alphabétique des autres hôpitaux.
+        foreach ($resultat['ambulance'] as $h) {
+            if (stripos($h['libelle'], 'Manarapenitra') !== false) {
+                $resultat['ambulance'] = [$h];
+                break;
+            }
+        }
+    } catch (PDOException $e) {
+        return ['pompier' => [], 'police' => [], 'ambulance' => []];
     }
+
+    return $resultat;
+}
 
     /** Liste des types de service (Pharmacie, Pompier, Force de l'ordre, Hôpital...). */
     public function getTypesService(): array
@@ -125,35 +134,36 @@ class Service
      * Recherche filtrée pour service-urgence.php (quartier, type, texte libre).
      */
     public function rechercher(?int $idQuartier = null, ?int $idType = null, ?string $recherche = null): array
-    {
-        $sql = "
-            SELECT s.libelle AS nom_service, s.telephone AS numero_telephone, ts.nom_type AS nom_categorie, q.nom_quartier
-            FROM service s
-            JOIN type_service ts ON s.id_type = ts.id_type
-            JOIN quartier q ON s.id_quartier = q.id_quartier
-            WHERE s.actif = 1
-        ";
-        $params = [];
+{
+    $sql = "
+        SELECT s.libelle AS nom_service, s.telephone AS numero_telephone, ts.nom_type AS nom_categorie, q.nom_quartier
+        FROM service s
+        JOIN type_service ts ON s.id_type = ts.id_type
+        JOIN quartier q ON s.id_quartier = q.id_quartier
+        WHERE s.actif = 1
+    ";
+    $params = [];
 
-        if ($idQuartier) {
-            $sql .= ' AND s.id_quartier = :id_quartier';
-            $params['id_quartier'] = $idQuartier;
-        }
-        if ($idType) {
-            $sql .= ' AND s.id_type = :id_type';
-            $params['id_type'] = $idType;
-        }
-        if ($recherche) {
-            $sql .= ' AND (s.libelle LIKE :recherche OR s.telephone LIKE :recherche)';
-            $params['recherche'] = '%' . $recherche . '%';
-        }
-
-        $sql .= ' ORDER BY ts.nom_type, s.libelle';
-
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute($params);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    if ($idQuartier) {
+        $sql .= ' AND s.id_quartier = :id_quartier';
+        $params['id_quartier'] = $idQuartier;
     }
+    if ($idType) {
+        $sql .= ' AND s.id_type = :id_type';
+        $params['id_type'] = $idType;
+    }
+    if ($recherche) {
+        $sql .= ' AND (s.libelle LIKE :recherche1 OR s.telephone LIKE :recherche2)';
+        $params['recherche1'] = '%' . $recherche . '%';
+        $params['recherche2'] = '%' . $recherche . '%';
+    }
+
+    $sql .= ' ORDER BY ts.nom_type, s.libelle';
+
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute($params);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 
     /** Une pharmacie de garde "enrichie" (nom_service/nom_quartier/numero_telephone), pour service-urgence.php. */
     public function getPharmacieGardeAvecQuartier(): ?array
@@ -172,6 +182,23 @@ class Service
             return $resultat ?: null;
         } catch (PDOException $e) {
             return null;
+        }
+    }
+
+    /** Tous les sapeurs-pompiers actifs, sans filtre — toujours affichés tels quels. */
+    public function getPompiers(): array
+    {
+        try {
+            $sql = "SELECT s.libelle AS nom_service, s.telephone AS numero_telephone, q.nom_quartier
+                    FROM service s
+                    JOIN type_service ts ON s.id_type = ts.id_type
+                    LEFT JOIN quartier q ON s.id_quartier = q.id_quartier
+                    WHERE s.actif = 1
+                    AND ts.nom_type = 'Pompier'
+                    ORDER BY s.libelle";
+            return $this->pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            return [];
         }
     }
 

@@ -237,27 +237,29 @@ class HomeController
      * SERVICES D'URGENCE (liste filtrable)
      * ============================================================= */
     public function serviceUrgence(): void
-    {
-        $serviceModel = new Service($this->pdo);
-        $quartierModel = new Quartier($this->pdo);
+{
+    $serviceModel = new Service($this->pdo);
+    $quartierModel = new Quartier($this->pdo);
 
-        $idQuartier = $_GET['id_quartier'] ?? null;
-        $idType = $_GET['id_type'] ?? null;
-        $recherche = trim($_GET['q'] ?? '');
+    $idQuartier = $_GET['id_quartier'] ?? null;
+    $idType = $_GET['id_type'] ?? null;
+    $recherche = trim($_GET['q'] ?? '');
 
-        $data = [
-            'quartiers'      => $quartierModel->all(),
-            'typesServices'  => $serviceModel->getTypesService(),
-            'services'       => $serviceModel->rechercher($idQuartier ? (int)$idQuartier : null, $idType ? (int)$idType : null, $recherche ?: null),
-            'pharmacieGarde' => $serviceModel->getPharmacieGardeAvecQuartier(),
-            'idQuartier'     => $idQuartier,
-            'idType'         => $idType,
-            'recherche'      => $recherche,
-        ];
+    $data = [
+        'quartiers'      => $quartierModel->all(),
+        'typesServices'  => $serviceModel->getTypesService(),
+        'services'       => $serviceModel->rechercher($idQuartier ? (int)$idQuartier : null, $idType ? (int)$idType : null, $recherche ?: null),
+        'pharmacieGarde' => $serviceModel->getPharmacieGardeAvecQuartier(),
+        'pompiers'       => $serviceModel->getPompiers(), // ← toujours tous les pompiers, jamais filtré
+        'idQuartier'     => $idQuartier,
+        'idType'         => $idType,
+        'recherche'      => $recherche,
+    ];
 
-        $this->render('service-urgence', $data);
-    }
+    $this->render('service-urgence', $data);
+}
 
+    
     /* =============================================================
      * CARTE INTERACTIVE DES URGENCES
      * ============================================================= */

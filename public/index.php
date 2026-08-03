@@ -114,7 +114,7 @@ switch ($action) {
         break;
 
     case 'admin-utilisateurs':
-        (new AdminController($pdo))->dashboard();
+        (new AdminController($pdo))->utilisateurs();
         break;
 
     default:

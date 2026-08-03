@@ -96,18 +96,24 @@
                                     <td data-label="Email" style="word-break:break-word;"><?php echo htmlspecialchars($u['email']); ?></td>
                                     <td data-label="Quartier"><?php echo htmlspecialchars($u['nom_quartier'] ?? '—'); ?></td>
                                     <td data-label="Rôle">
-                                        <form method="post" action="index.php?action=admin-utilisateurs" class="inline-form role-select-form">
-                                            <input type="hidden" name="action" value="changer_role">
-                                            <input type="hidden" name="id_utilisateur" value="<?php echo (int)$u['id_utilisateur']; ?>">
-                                            <select name="nouveau_role" class="role-select" onchange="this.form.submit()">
-                                                <?php foreach ($roles as $r): ?>
-                                                    <option value="<?php echo (int)$r['id_role']; ?>" <?php echo ((int)$r['id_role'] === (int)$u['id_role']) ? 'selected' : ''; ?>>
-                                                        <?php echo htmlspecialchars($r['nom_role']); ?>
-                                                    </option>
-                                                <?php endforeach; ?>
-                                            </select>
-                                        </form>
-                                    </td>
+    <?php if (($rolesParId[$u['id_role']] ?? '') === 'Administrateur'): ?>
+        <span class="role-badge-admin" title="Le rôle d'un administrateur ne peut pas être modifié ici.">
+            <i class="fas fa-user-shield"></i> Administrateur
+        </span>
+    <?php else: ?>
+        <form method="post" action="index.php?action=admin-utilisateurs" class="inline-form role-select-form">
+            <input type="hidden" name="action" value="changer_role">
+            <input type="hidden" name="id_utilisateur" value="<?php echo (int)$u['id_utilisateur']; ?>">
+            <select name="nouveau_role" class="role-select" onchange="this.form.submit()">
+                <?php foreach ($roles as $r): ?>
+                    <option value="<?php echo (int)$r['id_role']; ?>" <?php echo ((int)$r['id_role'] === (int)$u['id_role']) ? 'selected' : ''; ?>>
+                        <?php echo htmlspecialchars($r['nom_role']); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </form>
+    <?php endif; ?>
+</td>
                                     <td data-label="Statut">
                                         <?php if ($u['actif']): ?>
                                             <span class="etat-actif">Actif</span>

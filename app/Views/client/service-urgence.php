@@ -373,26 +373,23 @@
                 </div>
 
                 <!-- Pompier (à côté de la garde) -->
-                <div class="garde-pompier-item">
-                    <h2 class="section-title"><i class="fa-solid fa-fire-extinguisher"></i> Sapeurs-Pompiers</h2>
-                    <?php
-                        $pompiers = array_filter($services, function($s) {
-                            return ($s['nom_categorie'] ?? $s['nom_type']) === 'Pompier';
-                        });
-                        if (!empty($pompiers)):
-                            foreach($pompiers as $p):
-                    ?>
-                        <div class="card type-pompier">
-                            <h3><?= htmlspecialchars($p['nom_service']) ?></h3>
-                            <p class="quartier"><i class="fa-solid fa-location-dot"></i> <?= htmlspecialchars($p['nom_quartier'] ?? '—') ?></p>
-                            <a href="tel:<?= htmlspecialchars(str_replace(' ', '', $p['numero_telephone'])) ?>" class="btn-appel-service btn-pompier">
-                                <i class="fa-solid fa-phone"></i> <?= htmlspecialchars($p['numero_telephone']) ?>
-                            </a>
-                        </div>
-                    <?php endforeach; else: ?>
-                        <p class="aucun-resultat">Non répertorié.</p>
-                    <?php endif; ?>
-                </div>
+                <!-- Pompier (à côté de la garde) -->
+<div class="garde-pompier-item">
+    <h2 class="section-title"><i class="fa-solid fa-fire-extinguisher"></i> Sapeurs-Pompiers</h2>
+    <?php if (!empty($pompiers)): ?>
+        <?php foreach ($pompiers as $p): ?>
+        <div class="card type-pompier">
+            <h3><?= htmlspecialchars($p['nom_service']) ?></h3>
+            <p class="quartier"><i class="fa-solid fa-location-dot"></i> <?= htmlspecialchars($p['nom_quartier'] ?? '—') ?></p>
+            <a href="tel:<?= htmlspecialchars(str_replace(' ', '', $p['numero_telephone'])) ?>" class="btn-appel-service btn-pompier">
+                <i class="fa-solid fa-phone"></i> <?= htmlspecialchars($p['numero_telephone']) ?>
+            </a>
+        </div>
+        <?php endforeach; ?>
+    <?php else: ?>
+        <p class="aucun-resultat">Non répertorié.</p>
+    <?php endif; ?>
+</div>
             </div>
         </section>
 
